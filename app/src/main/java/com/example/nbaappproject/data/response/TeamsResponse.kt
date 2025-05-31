@@ -4,5 +4,5 @@ import com.example.nbaappproject.data.model.Team
 import com.google.gson.annotations.SerializedName
 
 data class TeamsResponse(
-    @SerializedName("data") val teams: List<Team>
+    @SerializedName("response") val teams: List<Team>
 )

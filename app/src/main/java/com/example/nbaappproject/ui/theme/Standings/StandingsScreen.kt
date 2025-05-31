@@ -1,35 +1,14 @@
 package com.example.nbaappproject.ui.theme.Standings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,10 +16,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.example.nbaappproject.data.response.Standing
-import com.example.nbaappproject.viewmodel.StandingsViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.nbaappproject.data.response.StandingResponseItem
+import com.example.nbaappproject.viewmodel.StandingsViewModel
 
 @Composable
 fun StandingsScreen(
@@ -94,17 +73,18 @@ fun StandingsScreen(
             }
             else -> {
                 val filteredStandings = standings
-                    .filter { it.conference.name.equals(selectedConference, ignoreCase = true) }
+                    .filter { it.conference.name.equals(selectedConference, ignoreCase = true) && it.team != null }
                     .sortedBy { it.conference.rank }
+
+                println("Standings data received: ${standings.size} items")
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(filteredStandings.size) { index ->
-                        val standing = filteredStandings[index]
-
+                    itemsIndexed(filteredStandings) { index, standing ->
+                        println("Processing standing for: ${standing.team?.name}") // Zabezpieczony log
                         if (index == 6 || index == 10) {
                             androidx.compose.material3.Divider(
                                 color = Color.Gray,
@@ -114,8 +94,7 @@ fun StandingsScreen(
                                     .padding(vertical = 4.dp)
                             )
                         }
-
-                        StandingsItem(standing)
+                        StandingsItem(standing = standing)
                     }
                 }
             }
@@ -124,12 +103,19 @@ fun StandingsScreen(
 }
 
 @Composable
-fun StandingsItem(standing: Standing) {
+fun StandingsItem(standing: StandingResponseItem) {
+    println("Processing StandingsItem for team: ${standing.team}") // Dodany log obiektu team
     val team = standing.team
-    val wins = standing.wins.total
-    val losses = standing.losses.total
-    val rank = standing.conference.rank
+    if (team == null) {
+        Text("Brak informacji o drużynie")
+        return
+    }
+    val wins = standing.win?.total ?: 0
+    val losses = standing.loss?.total ?: 0
+    val rank = standing.conference?.rank ?: "N/A"
     val winPercentage = calculateWinPercentage(wins, losses)
+    val teamName = team.name ?: "Nieznana drużyna"
+    val teamLogoUrl = team.logoUrl ?: "" // Możesz chcieć tu dać jakiś defaultowy obrazek
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -143,8 +129,8 @@ fun StandingsItem(standing: Standing) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = team.logoUrl,
-                contentDescription = "${team.name} logo",
+                model = teamLogoUrl,
+                contentDescription = "${teamName} logo",
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
@@ -155,7 +141,7 @@ fun StandingsItem(standing: Standing) {
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(team.name, style = MaterialTheme.typography.titleMedium)
+                Text(teamName, style = MaterialTheme.typography.titleMedium)
                 //Text(team.code, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
 
@@ -173,11 +159,9 @@ fun calculateWinPercentage(wins: Int, losses: Int): String {
     return if (totalGames == 0) "0.0" else String.format("%.3f", wins.toDouble() / totalGames)
 }
 
-
 @Preview
 @Composable
 fun StandingsScreenPreview() {
-    // Przykład tymczasowego pustego ekranu
     Column {
         Text("Preview placeholder – StandingsScreen()")
     }

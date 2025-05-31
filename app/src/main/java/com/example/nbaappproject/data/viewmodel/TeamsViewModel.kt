@@ -30,7 +30,7 @@ class TeamsViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.api.getTeams()
                 if (response.isSuccessful) {
-                    _teams.value = response.body()?.teams ?: emptyList()
+                    _teams.value = response.body()?.teams?.filter { it.nbaFranchise == true && (it.name?.contains("Team") == false) } ?: emptyList()
                 } else {
                     _errorMessage.value = "Błąd API: ${response.code()}"
                 }

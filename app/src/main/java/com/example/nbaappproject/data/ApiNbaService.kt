@@ -26,6 +26,10 @@ interface NbaApiService {
         @Query("season") season: String
     ): Response<PlayersResponse>
 
+    @Headers(
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
+        "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
+    )
     @GET("players")
     suspend fun getAllPlayers(
         @Query("season") season: String
@@ -47,7 +51,8 @@ interface NbaApiService {
     )
     @GET("standings")
     suspend fun getStandings(
-        @Query("season") season: String
+        @Query("season") season: String,
+        @Query("league") league: String = "standard" // Domyślna wartość
     ): Response<StandingsResponse>
 
     @Headers(
@@ -59,4 +64,21 @@ interface NbaApiService {
         @Query("date") date: String
     ): Response<GamesResponse>
 
+    @Headers(
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
+        "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
+    )
+    @GET("games")
+    suspend fun getGameDetails(
+        @Query("id") gameId: Int
+    ): Response<GameDetailsResponse>
+
+    @Headers(
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
+        "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
+    )
+    @GET("players/statistics")
+    suspend fun getPlayerStats(
+        @Query("game") gameId: Int
+    ): PlayerStatsResponse
 }

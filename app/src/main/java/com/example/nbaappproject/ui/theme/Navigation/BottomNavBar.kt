@@ -34,9 +34,17 @@ fun BottomNavBar(navController: NavController, modifier: Modifier = Modifier) {
 
         bottomNavItems.forEach { item ->
             NavigationBarItem(
-                selected = currentRoute == item.route,
+                selected = currentRoute?.startsWith(item.route) == true && item.route == "home",
                 onClick = {
-                    if (currentRoute != item.route) {
+                    if (item.route == "home") {
+                        navController.navigate("home") {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    } else if (currentRoute != item.route) {
                         navController.navigate(item.route) {
                             popUpTo(navController.graph.startDestinationId) {
                                 saveState = true

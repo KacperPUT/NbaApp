@@ -3,15 +3,15 @@ package com.example.nbaappproject.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nbaappproject.data.RetrofitInstance
-import com.example.nbaappproject.data.response.Standing
+import com.example.nbaappproject.data.response.StandingResponseItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class StandingsViewModel : ViewModel() {
 
-    private val _standings = MutableStateFlow<List<Standing>>(emptyList())
-    val standings: StateFlow<List<Standing>> = _standings
+    private val _standings = MutableStateFlow<List<StandingResponseItem>>(emptyList())
+    val standings: StateFlow<List<StandingResponseItem>> = _standings
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -24,7 +24,7 @@ class StandingsViewModel : ViewModel() {
             _isLoading.value = true
             _errorMessage.value = null
             try {
-                val response = RetrofitInstance.api.getStandings(season)
+                val response = RetrofitInstance.api.getStandings(season, "standard")
                 if (response.isSuccessful) {
                     _standings.value = response.body()?.standings ?: emptyList()
                 } else {

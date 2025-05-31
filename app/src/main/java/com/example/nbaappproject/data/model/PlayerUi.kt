@@ -6,7 +6,7 @@ data class PlayerUi(
     val lastName: String,
     val teamName: String,
     val position: String?,
-    val height: String,
+    val height: String, // Zmieniamy typ na String, bo będziemy wyciągać metry
     val weight: String,
     val birthDate: String,
     val college: String?,
@@ -21,7 +21,7 @@ fun Player.toUi(teamName: String): PlayerUi {
         lastName = lastName,
         teamName = teamName,
         position = position,
-        height = height,
+        height = this.height.meters ?: "N/A", // Wyciągamy metry z obiektu Height
         weight = weight,
         birthDate = birth.date,
         college = college,

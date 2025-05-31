@@ -39,6 +39,7 @@ fun PlayersScreen(navController: NavController, viewModel: PlayersViewModel = vi
     }
 
     val filteredPlayers = remember(searchQuery, selectedTeam, selectedPosition, players) {
+        println("Przeliczam filteredPlayers: query='$searchQuery', team='$selectedTeam', pos='$selectedPosition', players.size='${players.size}'")
         players.filter { player ->
             val fullName = "${player.firstName} ${player.lastName}".lowercase()
             val queryMatch = searchQuery.lowercase() in fullName

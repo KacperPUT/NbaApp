@@ -10,7 +10,7 @@ data class Player(
     @SerializedName("yearsPro") val yearsPro: String,
     @SerializedName("college") val college: String?,
     @SerializedName("birth") val birth: Birth,
-    @SerializedName("height") val height: String,
+    @SerializedName("height") val height: Height, // Zmieniono na obiekt Height
     @SerializedName("weight") val weight: String,
     @SerializedName("position") val position: String
 )
@@ -18,4 +18,10 @@ data class Player(
 data class Birth(
     @SerializedName("date") val date: String,
     @SerializedName("country") val country: String
+)
+
+data class Height(
+    @SerializedName("feets") val feets: String?,
+    @SerializedName("inches") val inches: String?,
+    @SerializedName("meters") val meters: String?
 )

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nbaappproject.data.RetrofitInstance
-import com.example.nbaappproject.data.TeamsRepository
+import com.example.nbaappproject.data.TeamRepository
 import com.example.nbaappproject.data.model.PlayerUi
 import com.example.nbaappproject.data.model.toUi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ class PlayersViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val teamsRepository = TeamsRepository()
+    private val teamsRepository = TeamRepository()
 
     fun loadPlayers(season: String = "2023") {
         viewModelScope.launch {

@@ -20,7 +20,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.nbaappproject.viewmodel.GameViewModel
+import com.example.nbaappproject.data.viewmodel.GameViewModel
+import com.example.nbaappproject.data.viewmodel.Result
+import com.example.nbaappproject.data.model.Game // Upewnij się, że ten import jest
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -42,10 +44,10 @@ fun HomeScreen(
     navController: NavController
 ) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    val formattedDateApi = selectedDate.format(DateTimeFormatter.ISO_DATE) // np. 2022-12-25
+    val formattedDateApi = selectedDate.format(DateTimeFormatter.ISO_DATE)
     val formattedDateUi = selectedDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
 
-    val games by viewModel.games.collectAsState()
+    val gamesResult by viewModel.games.collectAsState(initial = Result.Loading) // Inicjalizujemy stan ładowania
     val isLoading by viewModel.isLoading.collectAsState()
 
     val context = LocalContext.current
@@ -89,40 +91,19 @@ fun HomeScreen(
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(horizontal = 4.dp, vertical = 8.dp)
         ) {
-            IconButton(onClick = {
-                selectedDate = selectedDate.minusDays(1)
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Previous day",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            IconButton(onClick = { selectedDate = selectedDate.minusDays(1) }) {
+                Icon(Icons.Filled.ArrowBack, "Previous day", tint = MaterialTheme.colorScheme.onPrimaryContainer)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = formattedDateUi,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
+                Text(formattedDateUi, color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(end = 8.dp))
                 IconButton(onClick = { datePickerDialog.show() }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Select date",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    Icon(Icons.Default.DateRange, "Select date", tint = MaterialTheme.colorScheme.onPrimaryContainer)
                 }
             }
 
-            IconButton(onClick = {
-                selectedDate = selectedDate.plusDays(1)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Next day",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            IconButton(onClick = { selectedDate = selectedDate.plusDays(1) }) {
+                Icon(Icons.Default.ArrowForward, "Next day", tint = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
 
@@ -131,31 +112,45 @@ fun HomeScreen(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn {
-                items(games) { game ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp, horizontal = 8.dp)
-                            .clickable {
-                            navController.navigate("gameStats/${game.id}")
-                        },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = "${game.homeTeam.name} vs ${game.awayTeam.name}",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "${game.homeScore} : ${game.awayScore}",
-                                style = MaterialTheme.typography.titleMedium
-                            )
+            when (gamesResult) {
+                is Result.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is Result.Success -> {
+                    val games = (gamesResult as Result.Success<List<Game>>).data
+                    LazyColumn {
+                        items(games) { game ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp, horizontal = 8.dp)
+                                    .clickable {
+                                        navController.navigate("gameStats/${game.id}")
+                                    },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(
+                                        text = "${game.homeTeam.name} vs ${game.awayTeam.name}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "${game.homeScore} : ${game.awayScore}",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
+                            }
                         }
                     }
-
+                }
+                is Result.Error -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Wystąpił błąd podczas ładowania gier.")
+                    }
                 }
             }
         }

@@ -1,195 +1,117 @@
-package com.example.nbaappproject.ui.theme.GameStats
+package com.example.nbaappproject.ui.theme
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.nbaappproject.data.response.PlayerStatsItem
+import com.example.nbaappproject.data.viewmodel.GameViewModel
+import com.example.nbaappproject.data.viewmodel.Result
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.Icons
+import com.example.nbaappproject.data.response.GameDetailsItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameBoxScoreScreen(
-    modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {}
+    gameId: Int, // Otrzymujemy gameId jako argument
+    navController: NavController,
+    viewModel: GameViewModel = viewModel(),
+    gameDetails: GameDetailsItem?
 ) {
-    val playerStats = remember {
-        listOf(
-            PlayerStat("T. Brown Jr.", "1:25", 11, 4, 0, 1, 0, 0, 45.0, 33.3, 80.0),
-            PlayerStat("A. Davis", "3:36", 18, 21, 3, 2, 1, 2, 50.0, 0.0, 75.0),
-        )
+    val playerStatsResult by viewModel.playerStats.collectAsState(initial = Result.Loading)
+
+    // Pobierz statystyki graczy po wejściu na ekran
+    androidx.compose.runtime.LaunchedEffect(gameId) {
+        viewModel.fetchPlayerStats(gameId)
     }
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text("Game stats", color = MaterialTheme.colorScheme.onPrimary)
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
+                .padding(paddingValues)
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
         ) {
-            MatchHeader()
-
-            Row(
+            Text(
+                text = "Statystyki Graczy dla meczu ID: $gameId",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Text("Summary", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Box Score", color = MaterialTheme.colorScheme.onSurface)
-                Text("Highlights", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+                    .padding(16.dp)
+            )
 
-            StatsHeaderRow()
-
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(playerStats) { player ->
-                    PlayerStatRow(player)
-                    Divider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 1.dp)
+            when (playerStatsResult) {
+                is Result.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is Result.Success -> {
+                    val playerStats = (playerStatsResult as Result.Success<List<PlayerStatsItem>>).data
+                    if (playerStats.isNotEmpty()) {
+                        PlayerStatsList(playerStats = playerStats)
+                    } else {
+                        Text(
+                            "Brak dostępnych statystyk graczy dla tego meczu.",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    Text(
+                        "Wystąpił błąd podczas ładowania statystyk graczy: ${(playerStatsResult as Result.Error).exception.message}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
-
-            TeamSwitchButton(
-                team1 = "Lakers",
-                team2 = "Dallas",
-                selected = true,
-                onSwitch = { /* toggle team */ }
-            )
         }
     }
 }
 
 @Composable
-fun MatchHeader() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("LAL", color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.bodyLarge)
-            Text("7–27", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+fun PlayerStatsList(playerStats: List<PlayerStatsItem>) {
+    LazyColumn {
+        item {
+            Row(Modifier.fillMaxWidth().padding(8.dp)) {
+                Text("Gracz", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(2f))
+                Text("Pkt", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
+                Text("Zb", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
+                Text("As", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
+                // Dodaj inne nagłówki statystyk, które chcesz wyświetlić
+            }
+            Divider()
         }
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("110", color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.headlineSmall)
-            Text("FINAL", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
-            Text("111", color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.headlineSmall)
-        }
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("DAL", color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.bodyLarge)
-            Text("18–16", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}
-
-@Composable
-fun StatsHeaderRow() {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        val headers = listOf("Players", "Min", "Pts", "Reb", "Ast", "Stl", "Blk", "Tov", "FG%", "3P%", "FT%")
-        headers.forEachIndexed { i, title ->
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.weight(if (i == 0) 2f else 1f),
-                textAlign = TextAlign.Center
-            )
+        items(playerStats) { stat ->
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("${stat.player.firstname} ${stat.player.lastname}", modifier = Modifier.weight(2f))
+                Text(stat.points?.toString() ?: "-", modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
+                Text(stat.totalRebounds?.toString() ?: "-", modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
+                Text(stat.assists?.toString() ?: "-", modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
+                // Dodaj inne statystyki
+            }
+            Divider()
         }
     }
-}
-
-@Composable
-fun PlayerStatRow(player: PlayerStat) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text(player.name, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(2f))
-        listOf(
-            player.min,
-            player.pts.toString(),
-            player.reb.toString(),
-            player.ast.toString(),
-            player.stl.toString(),
-            player.blk.toString(),
-            player.tov.toString(),
-            "${player.fgPct}%",
-            "${player.threePct}%",
-            "${player.ftPct}%"
-        ).forEach {
-            Text(it, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-        }
-    }
-}
-
-@Composable
-fun TeamSwitchButton(
-    team1: String,
-    team2: String,
-    selected: Boolean,
-    onSwitch: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(50))
-    ) {
-        Button(
-            onClick = onSwitch,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
-            shape = RoundedCornerShape(50),
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(team1)
-        }
-
-        Button(
-            onClick = onSwitch,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (!selected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
-            shape = RoundedCornerShape(50),
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(team2)
-        }
-    }
-}
-
-@Preview
-@Composable
-fun GameBoxScoreScreenPreview() {
-    GameBoxScoreScreen()
 }

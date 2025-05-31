@@ -1,6 +1,8 @@
 package com.example.nbaappproject.ui.theme.Teams
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,9 +34,13 @@ fun TeamDetailsScreen(
 
     val stats by teamViewModel.teamStats.collectAsState()
     val players by teamViewModel.players.collectAsState()
+    println("Liczba graczy pobrana dla teamId $teamId: ${players.size}") // Dodany log
+
     val isLoading by teamViewModel.isLoading.collectAsState()
 
+
     LaunchedEffect(teamId) {
+        println("Ładuję statystyki i graczy dla teamId: $teamId") // Dodany log
         teamViewModel.loadTeamStats(teamId)
         teamViewModel.loadPlayers(teamId)
     }
@@ -49,8 +55,7 @@ fun TeamDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(team.name, style = MaterialTheme.typography.titleLarge) },
-                navigationIcon = {
+                title = { Text(team.name ?: "Nieznana drużyna", style = MaterialTheme.typography.titleLarge) },                navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
@@ -92,7 +97,7 @@ fun TeamDetailsScreen(
                             )
                             Column {
                                 Text(
-                                    "Conference: ${team.conference}",
+                                    "Conference: ${team.conference ?: "Brak danych o konferencji"}",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 //Text("Rank: ${team.rank}", style = MaterialTheme.typography.bodyMedium)
@@ -108,17 +113,30 @@ fun TeamDetailsScreen(
 
                             StatItem("Games Played", "${s.games}")
                             StatItem("Points", "${s.points}")
-                            StatItem("Fast Break Pts", "${s.fastBreakPoints}")
-                            StatItem("Points in Paint", "${s.pointsInPaint}")
-                            StatItem("Biggest Lead", "${s.biggestLead}")
                             StatItem("FG%", s.fieldGoalPercentage)
                             StatItem("FT%", s.freeThrowPercentage)
                             StatItem("3P%", s.threePointPercentage)
+                            StatItem("Fast Break Pts", "${s.fastBreakPoints}")
+                            StatItem("Points in Paint", "${s.pointsInPaint}")
+                            StatItem("Biggest Lead", "${s.biggestLead}")
+                            StatItem("Second Chance Pts", "${s.secondChancePoints}")
+                            StatItem("Points Off Turnovers", "${s.pointsOffTurnovers}")
+                            StatItem("Longest Run", "${s.longestRun}")
+                            StatItem("FGM", "${s.fgm}")
+                            StatItem("FGA", "${s.fga}")
+                            StatItem("FTM", "${s.ftm}")
+                            StatItem("FTA", "${s.fta}")
+                            StatItem("TPM", "${s.tpm}")
+                            StatItem("TPA", "${s.tpa}")
+                            StatItem("Off. Rebounds", "${s.offensiveRebounds}")
+                            StatItem("Def. Rebounds", "${s.defensiveRebounds}")
+                            StatItem("Total Rebounds", "${s.totalRebounds}")
                             StatItem("Assists", "${s.assists}")
-                            StatItem("Rebounds", "${s.totalRebounds}")
+                            StatItem("Personal Fouls", "${s.personalFouls}")
                             StatItem("Steals", "${s.steals}")
-                            StatItem("Blocks", "${s.blocks}")
                             StatItem("Turnovers", "${s.turnovers}")
+                            StatItem("Blocks", "${s.blocks}")
+                            StatItem("Plus/Minus", "${s.plusMinus}")
                             Spacer(Modifier.height(16.dp))
                         }
                     }
@@ -130,6 +148,7 @@ fun TeamDetailsScreen(
 
                     items(players) { player ->
                         val fullName = "${player.firstName} ${player.lastName}"
+                        println("Wyświetlam zawodnika: $fullName")
                         Text(fullName, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
