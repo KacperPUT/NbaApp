@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun GameStatsScreen(
+    gameId: Int?, // Może być nullable
     modifier: Modifier = Modifier,
 ) {
     var selectedTab by remember { mutableStateOf("Summary") }

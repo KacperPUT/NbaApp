@@ -2,6 +2,7 @@ package com.example.nbaappproject.ui.theme.Home
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.nbaappproject.viewmodel.GameViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -36,7 +38,8 @@ fun HeaderText(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: GameViewModel = viewModel()
+    viewModel: GameViewModel = viewModel(),
+    navController: NavController
 ) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     val formattedDateApi = selectedDate.format(DateTimeFormatter.ISO_DATE) // np. 2022-12-25
@@ -133,7 +136,10 @@ fun HomeScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 6.dp, horizontal = 8.dp),
+                            .padding(vertical = 6.dp, horizontal = 8.dp)
+                            .clickable {
+                            navController.navigate("gameStats/${game.id}")
+                        },
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -159,5 +165,5 @@ fun HomeScreen(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+    HomeScreen(navController = NavController(LocalContext.current))
 }

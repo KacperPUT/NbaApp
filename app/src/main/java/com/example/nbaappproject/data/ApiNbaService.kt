@@ -10,14 +10,14 @@ import retrofit2.http.Query
 interface NbaApiService {
 
     @Headers(
-        "X-RapidAPI-Key: YOUR_API_KEY",
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
         "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
     )
     @GET("teams")
     suspend fun getTeams(): Response<TeamsResponse>
 
     @Headers(
-        "X-RapidAPI-Key: YOUR_API_KEY",
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
         "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
     )
     @GET("players")
@@ -32,7 +32,7 @@ interface NbaApiService {
     ): Response<PlayersResponse>
 
     @Headers(
-        "X-RapidAPI-Key: YOUR_API_KEY",
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
         "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
     )
     @GET("statistics/teams/statistics")
@@ -42,7 +42,7 @@ interface NbaApiService {
     ): Response<TeamStatsResponse>
 
     @Headers(
-        "X-RapidAPI-Key: YOUR_API_KEY",
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
         "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
     )
     @GET("standings")
@@ -51,7 +51,7 @@ interface NbaApiService {
     ): Response<StandingsResponse>
 
     @Headers(
-        "X-RapidAPI-Key: YOUR_API_KEY",
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
         "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
     )
     @GET("games")

@@ -10,7 +10,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun GameSummaryScreen() {
+fun GameSummaryScreen(
+    modifier: Modifier = Modifier,
+    gameId: Int?,
+    //viewModel: GameStatsViewModel = viewModel() // Załóżmy, że masz taki ViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

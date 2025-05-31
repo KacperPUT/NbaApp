@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.nbaappproject.ui.theme.GameStats.GameStatsScreen
 import com.example.nbaappproject.ui.theme.Home.HomeScreen
 import com.example.nbaappproject.ui.theme.Players.PlayersScreen
 import com.example.nbaappproject.ui.theme.Teams.TeamsScreen
@@ -30,10 +31,15 @@ fun MainApp() {
             startDestination = "home",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { HomeScreen() }
+            composable("home") { HomeScreen(navController = navController) }
             composable("players") { PlayersScreen(navController = navController) }
             composable("teams") { TeamsScreen(navController = navController) }
             composable("standings") { StandingsScreen() }
+
+            composable("gameStats/{gameId}") { backStackEntry ->
+                val gameId = backStackEntry.arguments?.getString("gameId")?.toIntOrNull()
+                GameStatsScreen(gameId = gameId)
+            }
 
             composable("teamDetails/{teamId}") { backStackEntry ->
                 val teamId = backStackEntry.arguments?.getString("teamId")?.toIntOrNull()
