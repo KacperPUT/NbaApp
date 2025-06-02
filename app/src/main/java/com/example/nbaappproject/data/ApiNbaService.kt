@@ -39,7 +39,7 @@ interface NbaApiService {
         "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
         "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
     )
-    @GET("statistics/teams/statistics")
+    @GET("teams/statistics")
     suspend fun getTeamStatistics(
         @Query("id") teamId: Int,
         @Query("season") season: String
@@ -81,4 +81,14 @@ interface NbaApiService {
     suspend fun getPlayerStats(
         @Query("game") gameId: Int
     ): PlayerStatsResponse
+
+    @Headers(
+        "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
+        "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
+    )
+    @GET("players/statistics")
+    suspend fun getPlayerSeasonStats(
+        @Query("season") season: String,
+        @Query("id") playerId: Int
+    ): Response<PlayerStatsResponse>
 }

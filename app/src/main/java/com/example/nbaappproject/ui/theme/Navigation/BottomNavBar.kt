@@ -14,16 +14,43 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
+sealed class Screen(val route: String) {
+    object HomeScreen : Screen("home")
+    // object PlayersScreen : Screen("players") // Zakomentowane w Twoim MainApp
+    object TeamsScreen : Screen("teams")
+    object StandingsScreen : Screen("standings")
+    object GameStatsScreen : Screen("gameStats/{gameId}") {
+        fun createRoute(gameId: Int): String {
+            return "gameStats/$gameId"
+        }
+    }
+    object TeamDetailsScreen : Screen("teamDetails/{teamId}") {
+        fun createRoute(teamId: Int): String {
+            return "teamDetails/$teamId"
+        }
+    }
+    object GameBoxScoreScreen : Screen("gameBoxScore/{gameId}") {
+        fun createRoute(gameId: Int): String {
+            return "gameBoxScore/$gameId"
+        }
+    }
+    object PlayerCardScreen : Screen("playerCard/{playerId}") {
+        fun createRoute(playerId: Int): String {
+            return "playerCard/$playerId"
+        }
+    }
+}
+
 data class BottomNavItem(
     val route: String,
     val icon: ImageVector
 )
 
 val bottomNavItems = listOf(
-    BottomNavItem("home", Icons.Filled.Home),
-    BottomNavItem("players", Icons.Filled.Person),
-    BottomNavItem("teams", Icons.Filled.List),
-    BottomNavItem("standings", Icons.Filled.Star)
+    BottomNavItem(Screen.HomeScreen.route, Icons.Filled.Home),
+    // BottomNavItem(Screen.PlayersScreen.route, Icons.Filled.Person), // Zakomentowane
+    BottomNavItem(Screen.TeamsScreen.route, Icons.Filled.List),
+    BottomNavItem(Screen.StandingsScreen.route, Icons.Filled.Star)
 )
 
 @Composable
@@ -34,10 +61,10 @@ fun BottomNavBar(navController: NavController, modifier: Modifier = Modifier) {
 
         bottomNavItems.forEach { item ->
             NavigationBarItem(
-                selected = currentRoute?.startsWith(item.route) == true && item.route == "home",
+                selected = currentRoute?.startsWith(item.route) == true && item.route == Screen.HomeScreen.route,
                 onClick = {
-                    if (item.route == "home") {
-                        navController.navigate("home") {
+                    if (item.route == Screen.HomeScreen.route) {
+                        navController.navigate(Screen.HomeScreen.route) {
                             popUpTo(navController.graph.startDestinationId) {
                                 inclusive = true
                             }

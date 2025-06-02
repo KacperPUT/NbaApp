@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PlayersViewModel : ViewModel() {
+/*class PlayersViewModel : ViewModel() {
 
     private val _players = MutableStateFlow<List<PlayerUi>>(emptyList())
     val players: StateFlow<List<PlayerUi>> = _players
@@ -42,3 +42,4 @@ class PlayersViewModel : ViewModel() {
         }
     }
 }
+*/

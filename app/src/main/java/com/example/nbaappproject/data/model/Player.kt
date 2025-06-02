@@ -3,25 +3,45 @@ package com.example.nbaappproject.data.model
 import com.google.gson.annotations.SerializedName
 
 data class Player(
-    @SerializedName("playerId") val id: Int,
-    @SerializedName("firstName") val firstName: String,
-    @SerializedName("lastName") val lastName: String,
-    @SerializedName("teamId") val teamId: Int,
-    @SerializedName("yearsPro") val yearsPro: String,
-    @SerializedName("college") val college: String?,
+    val id: Int,
+    @SerializedName("firstname") val firstName: String?,
+    @SerializedName("lastname") val lastName: String?,
     @SerializedName("birth") val birth: Birth,
-    @SerializedName("height") val height: Height, // Zmieniono na obiekt Height
-    @SerializedName("weight") val weight: String,
-    @SerializedName("position") val position: String
+    @SerializedName("nba") val nba: Nba,
+    @SerializedName("height") val height: Height,
+    @SerializedName("weight") val weight: Weight, // mała litera 'w'
+    @SerializedName("college") val college: String?,
+    @SerializedName("affiliation") val affiliation: String?,
+    @SerializedName("leagues") val leagues: Leagues?
 )
 
 data class Birth(
-    @SerializedName("date") val date: String,
-    @SerializedName("country") val country: String
+    val date: String?,
+    val country: String?
+)
+
+data class Nba(
+    val start: Int?,
+    val pro: Int?
 )
 
 data class Height(
-    @SerializedName("feets") val feets: String?,
-    @SerializedName("inches") val inches: String?,
-    @SerializedName("meters") val meters: String?
+    val feets: String?,
+    val inches: String?,
+    val meters: String?
+)
+
+data class Weight(
+    val pounds: String?,
+    val kilograms: String?
+)
+
+data class Leagues(
+    val standard: StandardLeague?
+)
+
+data class StandardLeague(
+    val jersey: Int?,
+    val active: Boolean?,
+    val pos: String?
 )

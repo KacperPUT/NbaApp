@@ -12,13 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.example.nbaappproject.ui.theme.GameStats.GameStatsScreen
 import com.example.nbaappproject.ui.theme.Home.HomeScreen
-import com.example.nbaappproject.ui.theme.Players.PlayersScreen
+//import com.example.nbaappproject.ui.theme.Players.PlayersScreen
 import com.example.nbaappproject.ui.theme.Teams.TeamsScreen
 import com.example.nbaappproject.ui.theme.Standings.StandingsScreen
 import com.example.nbaappproject.ui.theme.Navigation.BottomNavBar
 import com.example.nbaappproject.ui.theme.Teams.TeamDetailsScreen
 import com.example.nbaappproject.ui.theme.Teams.TeamStats
 import com.example.nbaappproject.ui.theme.GameBoxScoreScreen // Ten import powinien być ok
+import com.example.nbaappproject.ui.theme.Players.PlayerCardScreen
 
 @Composable
 fun MainApp() {
@@ -35,7 +36,7 @@ fun MainApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") { HomeScreen(navController = navController) }
-            composable("players") { PlayersScreen(navController = navController) }
+            //composable("players") { PlayersScreen(navController = navController) }
             composable("teams") { TeamsScreen(navController = navController) }
             composable("standings") { StandingsScreen() }
 
@@ -62,6 +63,16 @@ fun MainApp() {
                     GameBoxScoreScreen(gameId = gameId, navController = navController, gameDetails = null)
                 } else {
                     Text("Błąd: Nie znaleziono ID meczu") // Obsługa błędu, gdyby gameId było null
+                }
+            }
+
+            composable(
+                "playerCard/{playerId}",
+                arguments = listOf(navArgument("playerId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val playerId = backStackEntry.arguments?.getInt("playerId")
+                playerId?.let {
+                    PlayerCardScreen(playerId = it, navController = navController)
                 }
             }
         }
