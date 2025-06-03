@@ -1,5 +1,6 @@
 package com.example.nbaappproject.ui.theme
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,6 +19,7 @@ import com.example.nbaappproject.data.viewmodel.GameViewModel
 import com.example.nbaappproject.data.viewmodel.Result
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.draw.clip
 import com.example.nbaappproject.data.response.GameDetailsItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +28,7 @@ fun GameBoxScoreScreen(
     gameId: Int, // Otrzymujemy gameId jako argument
     navController: NavController,
     viewModel: GameViewModel = viewModel(),
-    gameDetails: GameDetailsItem?
+    gameDetails: GameDetailsItem? // gameDetails może być null, jeśli przechodzimy bezpośrednio
 ) {
     val playerStatsResult by viewModel.playerStats.collectAsState(initial = Result.Loading)
 
@@ -36,16 +38,37 @@ fun GameBoxScoreScreen(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Box Score", style = MaterialTheme.typography.titleLarge) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            Icons.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimary // Kolor ikony
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
+                )
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background) // Upewnij się, że tło jest ustawione
         ) {
             Text(
                 text = "Statystyki Graczy dla meczu ID: $gameId",
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground, // Kolor tekstu
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -54,7 +77,7 @@ fun GameBoxScoreScreen(
             when (playerStatsResult) {
                 is Result.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Kolor wskaźnika ładowania
                     }
                 }
                 is Result.Success -> {
@@ -67,7 +90,9 @@ fun GameBoxScoreScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge, // Styl tekstu
+                            color = MaterialTheme.colorScheme.onBackground // Kolor tekstu
                         )
                     }
                 }
@@ -77,7 +102,8 @@ fun GameBoxScoreScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
-                        color = MaterialTheme.colorScheme.error
+                        style = MaterialTheme.typography.bodyLarge, // Styl tekstu
+                        color = MaterialTheme.colorScheme.error // Kolor błędu
                     )
                 }
             }
@@ -87,31 +113,89 @@ fun GameBoxScoreScreen(
 
 @Composable
 fun PlayerStatsList(playerStats: List<PlayerStatsItem>) {
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface) // Tło dla listy statystyk
+            .padding(horizontal = 8.dp, vertical = 4.dp) // Padding dla LazyColumn
+            .clip(MaterialTheme.shapes.medium) // Zaokrąglone rogi dla listy
+    ) {
         item {
-            Row(Modifier.fillMaxWidth().padding(8.dp)) {
-                Text("Gracz", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(2f))
-                Text("Pkt", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
-                Text("Zb", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
-                Text("As", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
+            // Nagłówki tabeli
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant) // Tło dla nagłówków
+                    .padding(vertical = 8.dp, horizontal = 8.dp) // Padding dla nagłówków
+            ) {
+                Text(
+                    "Gracz",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Kolor tekstu
+                    modifier = Modifier.weight(2f)
+                )
+                Text(
+                    "Pkt",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Kolor tekstu
+                    modifier = Modifier.weight(0.5f),
+                    textAlign = TextAlign.End
+                )
+                Text(
+                    "Zb",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Kolor tekstu
+                    modifier = Modifier.weight(0.5f),
+                    textAlign = TextAlign.End
+                )
+                Text(
+                    "As",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Kolor tekstu
+                    modifier = Modifier.weight(0.5f),
+                    textAlign = TextAlign.End
+                )
                 // Dodaj inne nagłówki statystyk, które chcesz wyświetlić
             }
-            Divider()
+            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp) // Kolor dividera
         }
         items(playerStats) { stat ->
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(vertical = 6.dp, horizontal = 8.dp), // Padding dla wierszy
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("${stat.player.firstname} ${stat.player.lastname}", modifier = Modifier.weight(2f))
-                Text(stat.points?.toString() ?: "-", modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
-                Text(stat.totalRebounds?.toString() ?: "-", modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
-                Text(stat.assists?.toString() ?: "-", modifier = Modifier.weight(0.5f), textAlign = TextAlign.End)
+                Text(
+                    "${stat.player.firstname} ${stat.player.lastname}",
+                    style = MaterialTheme.typography.bodyMedium, // Styl tekstu
+                    color = MaterialTheme.colorScheme.onSurface, // Kolor tekstu
+                    modifier = Modifier.weight(2f)
+                )
+                Text(
+                    stat.points?.toString() ?: "-",
+                    style = MaterialTheme.typography.bodyMedium, // Styl tekstu
+                    color = MaterialTheme.colorScheme.onSurface, // Kolor tekstu
+                    modifier = Modifier.weight(0.5f),
+                    textAlign = TextAlign.End
+                )
+                Text(
+                    stat.totalRebounds?.toString() ?: "-",
+                    style = MaterialTheme.typography.bodyMedium, // Styl tekstu
+                    color = MaterialTheme.colorScheme.onSurface, // Kolor tekstu
+                    modifier = Modifier.weight(0.5f),
+                    textAlign = TextAlign.End
+                )
+                Text(
+                    stat.assists?.toString() ?: "-",
+                    style = MaterialTheme.typography.bodyMedium, // Styl tekstu
+                    color = MaterialTheme.colorScheme.onSurface, // Kolor tekstu
+                    modifier = Modifier.weight(0.5f),
+                    textAlign = TextAlign.End
+                )
                 // Dodaj inne statystyki
             }
-            Divider()
+            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp) // Kolor dividera
         }
     }
 }

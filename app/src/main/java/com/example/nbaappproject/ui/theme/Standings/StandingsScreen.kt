@@ -3,10 +3,8 @@ package com.example.nbaappproject.ui.theme.Standings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +19,7 @@ import coil.compose.AsyncImage
 import com.example.nbaappproject.data.response.StandingResponseItem
 import com.example.nbaappproject.viewmodel.StandingsViewModel
 
+@OptIn(ExperimentalMaterial3Api::class) // Dodaj opt-in dla ExperimentalMaterial3Api
 @Composable
 fun StandingsScreen(
     viewModel: StandingsViewModel = viewModel()
@@ -36,65 +35,91 @@ fun StandingsScreen(
         viewModel.loadStandings()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        TabRow(selectedTabIndex = tabs.indexOf(selectedConference)) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    text = { Text(title) },
-                    selected = selectedConference == title,
-                    onClick = { selectedConference = title }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Tabele", style = MaterialTheme.typography.titleLarge) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
                 )
-            }
-        }
-
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-            errorMessage != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = errorMessage ?: "Nieznany błąd",
-                        color = Color.Red
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues) // Zastosuj padding z Scaffold
+                .background(MaterialTheme.colorScheme.background) // Upewnij się, że tło jest ustawione
+        ) {
+            TabRow(
+                selectedTabIndex = tabs.indexOf(selectedConference),
+                containerColor = MaterialTheme.colorScheme.surface, // Kolor tła dla TabRow
+                contentColor = MaterialTheme.colorScheme.primary // Kolor wskaźnika i tekstu aktywnej zakładki
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        text = {
+                            Text(
+                                title,
+                                style = MaterialTheme.typography.labelLarge // Styl tekstu zakładki
+                            )
+                        },
+                        selected = selectedConference == title,
+                        onClick = { selectedConference = title },
+                        selectedContentColor = MaterialTheme.colorScheme.primary, // Kolor tekstu wybranej zakładki
+                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu niewybranej zakładki
                     )
                 }
             }
-            else -> {
-                val filteredStandings = standings
-                    .filter { it.conference.name.equals(selectedConference, ignoreCase = true) && it.team != null }
-                    .sortedBy { it.conference.rank }
 
-                println("Standings data received: ${standings.size} items")
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Kolor wskaźnika ładowania
+                    }
+                }
+                errorMessage != null -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = errorMessage ?: "Nieznany błąd",
+                            color = MaterialTheme.colorScheme.error, // Kolor błędu
+                            style = MaterialTheme.typography.bodyLarge // Styl tekstu błędu
+                        )
+                    }
+                }
+                else -> {
+                    val filteredStandings = standings
+                        .filter { it.conference.name.equals(selectedConference, ignoreCase = true) && it.team != null }
+                        .sortedBy { it.conference.rank }
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    itemsIndexed(filteredStandings) { index, standing ->
-                        println("Processing standing for: ${standing.team?.name}") // Zabezpieczony log
-                        if (index == 6 || index == 10) {
-                            androidx.compose.material3.Divider(
-                                color = Color.Gray,
-                                thickness = 2.dp,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
-                            )
+                    println("Standings data received: ${standings.size} items")
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        itemsIndexed(filteredStandings) { index, standing ->
+                            println("Processing standing for: ${standing.team?.name}") // Zabezpieczony log
+                            if (index == 6 || index == 10) { // Divider dla strefy playoff/play-in
+                                Divider(
+                                    color = MaterialTheme.colorScheme.outlineVariant, // Kolor dividera z motywu
+                                    thickness = 1.dp, // Zmniejsz grubość dla subtelności
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp) // Zwiększ padding dla lepszego odstępu
+                                )
+                            }
+                            StandingsItem(standing = standing)
                         }
-                        StandingsItem(standing = standing)
                     }
                 }
             }
@@ -107,7 +132,11 @@ fun StandingsItem(standing: StandingResponseItem) {
     println("Processing StandingsItem for team: ${standing.team}") // Dodany log obiektu team
     val team = standing.team
     if (team == null) {
-        Text("Brak informacji o drużynie")
+        Text(
+            "Brak informacji o drużynie",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         return
     }
     val wins = standing.win?.total ?: 0
@@ -119,8 +148,9 @@ fun StandingsItem(standing: StandingResponseItem) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        shape = MaterialTheme.shapes.medium, // Użyj kształtu z motywu
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Kolor tła karty
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp) // Mniejsza elewacja dla subtelności
     ) {
         Row(
             modifier = Modifier
@@ -134,21 +164,37 @@ fun StandingsItem(standing: StandingResponseItem) {
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(Color.LightGray),
+                    .background(MaterialTheme.colorScheme.primaryContainer), // Kolor tła dla logo
                 contentScale = ContentScale.Fit
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(teamName, style = MaterialTheme.typography.titleMedium)
-                //Text(team.code, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text(
+                    teamName,
+                    style = MaterialTheme.typography.titleMedium, // Styl nazwy drużyny
+                    color = MaterialTheme.colorScheme.onSurface // Kolor tekstu nazwy drużyny
+                )
+                //Text(team.code, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) // Jeśli chcesz wyświetlić kod drużyny
             }
 
             Column(horizontalAlignment = Alignment.End) {
-                Text("$wins - $losses", style = MaterialTheme.typography.bodyMedium)
-                Text("Win% $winPercentage", style = MaterialTheme.typography.bodySmall)
-                Text("Rank: $rank", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    "$wins - $losses",
+                    style = MaterialTheme.typography.bodyMedium, // Styl rekordu
+                    color = MaterialTheme.colorScheme.onSurface // Kolor tekstu rekordu
+                )
+                Text(
+                    "Win% $winPercentage",
+                    style = MaterialTheme.typography.bodySmall, // Styl procentu wygranych
+                    color = MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu procentu wygranych
+                )
+                Text(
+                    "Rank: $rank",
+                    style = MaterialTheme.typography.bodySmall, // Styl rankingu
+                    color = MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu rankingu
+                )
             }
         }
     }
@@ -156,7 +202,7 @@ fun StandingsItem(standing: StandingResponseItem) {
 
 fun calculateWinPercentage(wins: Int, losses: Int): String {
     val totalGames = wins + losses
-    return if (totalGames == 0) "0.0" else String.format("%.3f", wins.toDouble() / totalGames)
+    return if (totalGames == 0) "0.000" else String.format("%.3f", wins.toDouble() / totalGames) // Upewnij się, że zawsze są 3 miejsca po przecinku
 }
 
 @Preview

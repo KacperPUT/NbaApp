@@ -20,7 +20,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.nbaappproject.viewmodel.TeamsViewModel
 import com.example.nbaappproject.data.model.Team
+import com.example.nbaappproject.ui.theme.Navigation.Screen // Dodaj ten import dla nawigacji
 
+@OptIn(ExperimentalMaterial3Api::class) // Dodaj opt-in dla ExperimentalMaterial3Api
 @Composable
 fun TeamsScreen(
     navController: NavController,
@@ -30,25 +32,43 @@ fun TeamsScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    when {
-        isLoading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
-        errorMessage != null -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(errorMessage ?: "Nieznany błąd", color = Color.Red)
-            }
-        }
-        else -> {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                items(teams) { team ->
-                    TeamItem(team) {
-                        navController.navigate("teamDetails/${team.id}")
+    // Użyj Scaffold dla spójnego wyglądu ekranu
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Drużyny NBA", style = MaterialTheme.typography.titleLarge) }
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues) // Zastosuj padding z Scaffold
+                .background(MaterialTheme.colorScheme.background), // Upewnij się, że tło jest ustawione
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+                errorMessage != null -> {
+                    Text(errorMessage ?: "Nieznany błąd", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
+                }
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(teams) { team ->
+                            TeamItem(team) {
+                                // Nawigacja do TeamDetailsScreen
+                                navController.navigate(Screen.TeamDetailsScreen.createRoute(team.id))
+                            }
+                        }
                     }
                 }
             }
@@ -60,30 +80,38 @@ fun TeamsScreen(
 fun TeamItem(team: Team, onClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .width(96.dp)
-            .clickable { onClick() },
+            .fillMaxWidth() // Użyj fillMaxWidth w Column, aby Card mógł się rozciągnąć
+            .clickable { onClick() }
+            .padding(8.dp), // Dodaj padding wokół każdego elementu
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Card(
             modifier = Modifier
-                .size(72.dp)
-                .clip(CircleShape),
-            shape = CircleShape
+                .size(96.dp), // Zwiększ rozmiar karty dla lepszej widoczności
+            shape = MaterialTheme.shapes.medium, // Użyj kształtu z motywu
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // Użyj koloru powierzchni z motywu
         ) {
-            AsyncImage(
-                model = team.logoUrl,
-                contentDescription = "${team.name} logo",
-                contentScale = ContentScale.Fit,
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.LightGray)
-            )
+                    .background(MaterialTheme.colorScheme.primaryContainer), // Kolor tła dla logo
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = team.logoUrl,
+                    contentDescription = "${team.name} logo",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(64.dp) // Dostosuj rozmiar logo wewnątrz karty
+                        .clip(CircleShape) // Zachowaj okrągły kształt logo
+                )
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = team.nickname,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
+            style = MaterialTheme.typography.bodyMedium, // Użyj stylu z motywu
+            color = MaterialTheme.colorScheme.onSurface // Użyj koloru tekstu z motywu
         )
     }
 }

@@ -12,12 +12,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.nbaappproject.data.viewmodel.TeamViewModel
-import com.example.nbaappproject.ui.theme.Teams.StatItem
+import com.example.nbaappproject.ui.theme.Teams.StatItem // Upewnij się, że ten import jest poprawny
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,11 +27,11 @@ fun PlayerCardScreen(
     navController: NavController,
     teamViewModel: TeamViewModel = viewModel()
 ) {
-    val playerSeasonStats by teamViewModel.playerSeasonStats.collectAsState()
+    val playerSeasonAverages by teamViewModel.playerSeasonAverages.collectAsState()
     val isLoading by teamViewModel.isLoading.collectAsState()
 
     LaunchedEffect(key1 = playerId) {
-        teamViewModel.loadPlayerSeasonStats(playerId, "2021") // Używamy tego samego sezonu co dla listy graczy
+        teamViewModel.loadPlayerSeasonStats(playerId, "2020") // Sezon "2020" dla statystyk zawodnika
     }
 
     Scaffold(
@@ -39,59 +40,88 @@ fun PlayerCardScreen(
                 title = { Text("Karta Zawodnika", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimary // Kolor ikony
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.background), // Upewnij się, że tło jest ustawione
             contentAlignment = Alignment.TopCenter
         ) {
             if (isLoading) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Kolor wskaźnika ładowania
             } else {
-                playerSeasonStats?.playerStats?.firstOrNull()?.let { firstStat ->
+                playerSeasonAverages?.let { averages ->
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface) // Kolor tła LazyColumn
                             .padding(16.dp)
+                            .clip(MaterialTheme.shapes.large) // Zaokrąglone rogi dla LazyColumn
                     ) {
                         item {
                             Text(
-                                "${firstStat.player.firstname} ${firstStat.player.lastname}",
-                                style = MaterialTheme.typography.headlineSmall
+                                "${averages.firstName} ${averages.lastName}",
+                                style = MaterialTheme.typography.headlineSmall, // Styl nazwiska
+                                color = MaterialTheme.colorScheme.onSurface // Kolor tekstu
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                "Drużyna: ${firstStat.team.name}",
-                                style = MaterialTheme.typography.bodyMedium
+                                "Drużyna: ${averages.teamName}",
+                                style = MaterialTheme.typography.bodyMedium, // Styl drużyny
+                                color = MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu
                             )
                             Text(
-                                "Pozycja: ${firstStat.position ?: "N/A"}",
-                                style = MaterialTheme.typography.bodyMedium
+                                "Rozegrane mecze: ${averages.gamesPlayed}",
+                                style = MaterialTheme.typography.bodyMedium, // Styl rozegranych meczów
+                                color = MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu
                             )
                             Spacer(modifier = Modifier.height(16.dp))
+
+                            // Statystyki Sezonowe
                             Text(
-                                "Statystyki (Średnie na Mecz - do implementacji)",
-                                style = MaterialTheme.typography.titleMedium
+                                "Statystyki Sezonowe (Średnie na Mecz)",
+                                style = MaterialTheme.typography.titleMedium, // Styl nagłówka statystyk
+                                color = MaterialTheme.colorScheme.onSurface // Kolor tekstu
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            // Na razie wyświetlamy dane z pierwszego meczu w sezonie
-                            StatItem("Punkty", firstStat.points?.toString() ?: "N/A")
-                            StatItem("Asysty", firstStat.assists?.toString() ?: "N/A")
-                            StatItem("Zbiórki", firstStat.totalRebounds?.toString() ?: "N/A")
-                            StatItem("Steals", firstStat.steals?.toString() ?: "N/A")
-                            StatItem("Bloki", firstStat.blocks?.toString() ?: "N/A")
-                            StatItem("Minuty", firstStat.minutes ?: "N/A")
-                            // Dodaj więcej statystyk, które chcesz wyświetlić
+                            StatItem("Minuty", averages.avgMinutes)
+                            StatItem("Punkty", averages.avgPoints.toString())
+                            StatItem("Asysty", averages.avgAssists.toString())
+                            StatItem("Zbiórki (Całkowite)", averages.avgTotalRebounds.toString())
+                            StatItem("Zbiórki (Offensywne)", averages.avgOffensiveRebounds.toString())
+                            StatItem("Zbiórki (Defensywne)", averages.avgDefensiveRebounds.toString())
+                            StatItem("Steals", averages.avgSteals.toString())
+                            StatItem("Bloki", averages.avgBlocks.toString())
+                            StatItem("Faule Osobiste", averages.avgPersonalFouls.toString())
+                            StatItem("Straty", averages.avgTurnovers.toString())
+                            StatItem("Plus/Minus", averages.avgPlusMinus.toString())
+                            StatItem("FG%", "${String.format("%.1f", averages.avgFieldGoalPercentage)}%")
+                            StatItem("FT%", "${String.format("%.1f", averages.avgFreeThrowPercentage)}%")
+                            StatItem("3P%", "${String.format("%.1f", averages.avgThreePointPercentage)}%")
                         }
+                    } ?: run {
+                        Text(
+                            "Brak danych o statystykach zawodnika dla tego sezonu.",
+                            modifier = Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                } ?: run {
-                    Text("Brak danych o statystykach zawodnika.")
                 }
             }
         }

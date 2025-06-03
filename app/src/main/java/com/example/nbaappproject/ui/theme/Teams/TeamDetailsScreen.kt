@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,7 +23,7 @@ import com.example.nbaappproject.data.viewmodel.TeamViewModel
 import com.example.nbaappproject.data.model.Team
 import com.example.nbaappproject.viewmodel.TeamsViewModel
 import com.example.nbaappproject.data.model.PlayerUi
-import com.example.nbaappproject.ui.theme.Navigation.Screen
+import com.example.nbaappproject.ui.theme.Navigation.Screen // Prawidłowy import
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +60,7 @@ fun TeamDetailsScreen(
 
     if (team == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Użycie koloru z motywu
         }
         return
     }
@@ -67,14 +68,23 @@ fun TeamDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Statystyki Drużynowe", style = MaterialTheme.typography.titleLarge) },
+                title = { Text(team.name ?: "Nieznana drużyna", style = MaterialTheme.typography.titleLarge) }, // Użycie nazwy drużyny w tytule
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onSurface // Kolor ikony
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -83,16 +93,20 @@ fun TeamDetailsScreen(
             contentAlignment = Alignment.TopCenter
         ) {
             if (isLoading) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             } else {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxSize() // Fill max size for the column
+                        .background(MaterialTheme.colorScheme.background) // Użycie koloru tła z motywu
+                        .padding(16.dp)
                 ) {
-                    // Informacje o drużynie (logo, konferencja)
+                    // Informacje o drużynie (logo, nazwa drużyny)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         AsyncImage(
                             model = team.logoUrl,
@@ -100,26 +114,48 @@ fun TeamDetailsScreen(
                             modifier = Modifier
                                 .size(64.dp)
                                 .background(
-                                    Color.LightGray,
-                                    shape = MaterialTheme.shapes.medium
+                                    MaterialTheme.colorScheme.surfaceVariant, // Użycie koloru z motywu
+                                    shape = MaterialTheme.shapes.medium // Użycie kształtu z motywu
                                 )
                         )
                         Column {
                             Text(
                                 team?.name ?: "Nieznana drużyna",
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.headlineSmall, // Większy styl dla nazwy drużyny
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                "Conference: ${team.conference ?: "Brak danych o konferencji"}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
                     Spacer(Modifier.height(16.dp))
 
                     // Przyciski do przełączania widoku
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { showStats = true }) {
-                            Text("Statystyki")
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            onClick = { showStats = true },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (showStats) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = if (showStats) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                            shape = MaterialTheme.shapes.medium
+                        ) {
+                            Text("Statystyki", style = MaterialTheme.typography.labelLarge)
                         }
-                        Button(onClick = { showStats = false }) {
-                            Text("Skład")
+                        Button(
+                            onClick = { showStats = false },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (!showStats) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = if (!showStats) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                            shape = MaterialTheme.shapes.medium
+                        ) {
+                            Text("Skład", style = MaterialTheme.typography.labelLarge)
                         }
                     }
                     Spacer(Modifier.height(16.dp))
@@ -129,11 +165,17 @@ fun TeamDetailsScreen(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
+                                .background(MaterialTheme.colorScheme.surface) // Użycie koloru powierzchni
                                 .padding(vertical = 8.dp)
+                                .clip(MaterialTheme.shapes.large) // Zaokrąglone rogi dla LazyColumn
                         ) {
                             item {
-                                Text("Statystyki Drużyny", style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    "Statystyki Drużyny",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
                                 Spacer(Modifier.height(8.dp))
                             }
                             stats?.stats?.let { listOfStats ->
@@ -168,6 +210,24 @@ fun TeamDetailsScreen(
                                         StatItem("Plus/Minus", "${s.plusMinus}")
                                         Spacer(Modifier.height(16.dp))
                                     }
+                                } else {
+                                    item {
+                                        Text(
+                                            "Brak dostępnych statystyk drużynowych dla tego sezonu.",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(16.dp)
+                                        )
+                                    }
+                                }
+                            } ?: run {
+                                item {
+                                    Text(
+                                        "Brak dostępnych statystyk drużynowych dla tego sezonu.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
                                 }
                             }
                         }
@@ -175,23 +235,31 @@ fun TeamDetailsScreen(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
+                                .background(MaterialTheme.colorScheme.surface) // Użycie koloru powierzchni
                                 .padding(16.dp)
+                                .clip(MaterialTheme.shapes.large) // Zaokrąglone rogi dla LazyColumn
                         ) {
                             item {
-                                Text("Skład Drużyny", style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    "Skład Drużyny",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                                 Spacer(Modifier.height(8.dp))
                                 // Nagłówki tabeli
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text("Nr", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(0.1f))
-                                    Text("Nazwisko", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(0.3f))
-                                    Text("Imię", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(0.2f))
-                                    Text("Poz.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(0.1f))
-                                    Text("Wzrost", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(0.2f))
-                                    Text("Waga", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(0.1f))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text("Nr", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(0.1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Nazwisko", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(0.3f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Imię", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(0.2f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Poz.", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(0.1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Wzrost", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(0.2f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("Waga", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(0.1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Spacer(Modifier.height(4.dp))
-                                Divider()
+                                Divider(color = MaterialTheme.colorScheme.outlineVariant) // Kolor dividera
                                 Spacer(Modifier.height(4.dp))
                             }
                             items(players) { player ->
@@ -199,19 +267,31 @@ fun TeamDetailsScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                        player.id?.let {
-                                            navController.navigate(Screen.PlayerCardScreen.createRoute(it))
+                                            // Przekazujemy tylko ID gracza
+                                            player.id?.let {
+                                                navController.navigate(Screen.PlayerCardScreen.createRoute(it))
+                                            }
                                         }
-                                    },
+                                        .padding(vertical = 4.dp), // Dodaj padding dla wierszy graczy
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(player.jerseyNumber?.toString() ?: "N/A", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.1f))
-                                    Text(player.lastName ?: "N/A", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.3f))
-                                    Text(player.firstName ?: "N/A", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.2f))
-                                    Text(player.position ?: "N/A", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.1f))
-                                    Text(player.height, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.2f))
-                                    Text(player.weight, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.1f))
+                                    Text(player.jerseyNumber?.toString() ?: "N/A", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.1f), color = MaterialTheme.colorScheme.onSurface)
+                                    Text(player.lastName ?: "N/A", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.3f), color = MaterialTheme.colorScheme.onSurface)
+                                    Text(player.firstName ?: "N/A", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.2f), color = MaterialTheme.colorScheme.onSurface)
+                                    Text(player.position ?: "N/A", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.1f), color = MaterialTheme.colorScheme.onSurface)
+                                    Text(player.height, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.2f), color = MaterialTheme.colorScheme.onSurface)
+                                    Text(player.weight, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.1f), color = MaterialTheme.colorScheme.onSurface)
+                                }
+                            }
+                            if (players.isEmpty()) {
+                                item {
+                                    Text(
+                                        "Brak dostępnych graczy dla tej drużyny w tym sezonie.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
                                 }
                             }
                         }
@@ -227,10 +307,10 @@ fun StatItem(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 4.dp), // Dostosuj padding
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-        Text(value, style = MaterialTheme.typography.bodyMedium)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) // Użycie koloru z motywu
+        Text(value, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface) // Użycie koloru z motywu
     }
 }

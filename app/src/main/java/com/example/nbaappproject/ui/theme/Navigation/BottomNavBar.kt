@@ -13,6 +13,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+// Usunięto import com.example.nbaappproject.data.model.PlayerUi
+// Usunięto import com.google.gson.Gson
 
 sealed class Screen(val route: String) {
     object HomeScreen : Screen("home")
@@ -34,6 +36,7 @@ sealed class Screen(val route: String) {
             return "gameBoxScore/$gameId"
         }
     }
+    // Zmieniamy PlayerCardScreen, aby przyjmował tylko playerId
     object PlayerCardScreen : Screen("playerCard/{playerId}") {
         fun createRoute(playerId: Int): String {
             return "playerCard/$playerId"
@@ -48,20 +51,26 @@ data class BottomNavItem(
 
 val bottomNavItems = listOf(
     BottomNavItem(Screen.HomeScreen.route, Icons.Filled.Home),
-    // BottomNavItem(Screen.PlayersScreen.route, Icons.Filled.Person), // Zakomentowane
     BottomNavItem(Screen.TeamsScreen.route, Icons.Filled.List),
     BottomNavItem(Screen.StandingsScreen.route, Icons.Filled.Star)
 )
 
 @Composable
 fun BottomNavBar(navController: NavController, modifier: Modifier = Modifier) {
-    NavigationBar(modifier = modifier) {
+    NavigationBar(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surface, // Kolor tła paska nawigacji
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant // Domyślny kolor ikon/tekstu
+    ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
 
         bottomNavItems.forEach { item ->
+            val selected = currentRoute?.startsWith(item.route) == true && item.route == Screen.HomeScreen.route ||
+                    currentRoute?.startsWith(item.route) == true && item.route != Screen.HomeScreen.route // Poprawiona logika wyboru
+
             NavigationBarItem(
-                selected = currentRoute?.startsWith(item.route) == true && item.route == Screen.HomeScreen.route,
+                selected = selected,
                 onClick = {
                     if (item.route == Screen.HomeScreen.route) {
                         navController.navigate(Screen.HomeScreen.route) {
@@ -81,8 +90,27 @@ fun BottomNavBar(navController: NavController, modifier: Modifier = Modifier) {
                         }
                     }
                 },
-                icon = { Icon(imageVector = item.icon, contentDescription = item.route) },
-                label = { Text(item.route) }
+                icon = {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.route,
+                        tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant // Kolor ikony w zależności od wyboru
+                    )
+                },
+                label = {
+                    Text(
+                        item.route,
+                        style = MaterialTheme.typography.labelSmall, // Styl tekstu etykiety
+                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu etykiety
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer // Kolor wskaźnika wybranej zakładki
+                )
             )
         }
     }
