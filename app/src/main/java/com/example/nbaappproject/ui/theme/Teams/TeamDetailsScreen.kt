@@ -22,8 +22,7 @@ import com.example.nbaappproject.data.RetrofitInstance
 import com.example.nbaappproject.data.viewmodel.TeamViewModel
 import com.example.nbaappproject.data.model.Team
 import com.example.nbaappproject.viewmodel.TeamsViewModel
-import com.example.nbaappproject.data.model.PlayerUi
-import com.example.nbaappproject.ui.theme.Navigation.Screen // Prawidłowy import
+import com.example.nbaappproject.data.model.PlayerUi // Dodaj ten import
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,31 +35,31 @@ fun TeamDetailsScreen(
     val teams by teamsViewModel.teams.collectAsState()
     val team = teams.find { it.id == teamId }
 
-    val stats by teamViewModel.teamStats.collectAsState()
+    val statsResponse by teamViewModel.teamStats.collectAsState()
     val players by teamViewModel.players.collectAsState()
     println("Liczba graczy pobrana dla teamId $teamId: ${players.size}")
 
     val isLoading by teamViewModel.isLoading.collectAsState()
-    var showStats by remember { mutableStateOf(true) } // Stan do przełączania widoku
+    var showStats by remember { mutableStateOf(true) }
 
     LaunchedEffect(key1 = teamId) {
         println("LaunchedEffect dla teamId: $teamId")
-        teamViewModel.loadTeamStats(teamId, "2020") // Ustawiamy sezon na "2020"
+        teamViewModel.loadTeamStats(teamId, "2024")
         println("Po loadTeamStats")
         println("Przed loadPlayers z teamId: $teamId")
-        teamViewModel.loadPlayers(teamId, "2021") // Ustawiamy sezon dla graczy
+        teamViewModel.loadPlayers(teamId, "2024")
         println("Po loadPlayers")
     }
 
     LaunchedEffect(key1 = teamId) {
         println("Drugi LaunchedEffect dla teamId: $teamId (getTeamStatistics)")
-        val statsResponse = RetrofitInstance.api.getTeamStatistics(teamId = teamId, season = "2020") // Ustawiamy sezon na "2020"
-        Log.d("TeamDetailsScreen", "Odpowiedź getTeamStatistics w LaunchedEffect: $statsResponse")
+        val statsApiCallResponse = RetrofitInstance.api.getTeamStatistics(teamId = teamId, season = "2024")
+        Log.d("TeamDetailsScreen", "Odpowiedź getTeamStatistics w LaunchedEffect: ${statsApiCallResponse.body()?.stats?.firstOrNull()?.games ?: "Brak danych o meczach"}")
     }
 
     if (team == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Użycie koloru z motywu
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         }
         return
     }
@@ -68,23 +67,23 @@ fun TeamDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(team.name ?: "Nieznana drużyna", style = MaterialTheme.typography.titleLarge) }, // Użycie nazwy drużyny w tytule
+                title = { Text(team.name ?: "Nieznana drużyna", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onSurface // Kolor ikony
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -98,8 +97,8 @@ fun TeamDetailsScreen(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .fillMaxSize() // Fill max size for the column
-                        .background(MaterialTheme.colorScheme.background) // Użycie koloru tła z motywu
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(16.dp)
                 ) {
                     // Informacje o drużynie (logo, nazwa drużyny)
@@ -114,21 +113,26 @@ fun TeamDetailsScreen(
                             modifier = Modifier
                                 .size(64.dp)
                                 .background(
-                                    MaterialTheme.colorScheme.surfaceVariant, // Użycie koloru z motywu
-                                    shape = MaterialTheme.shapes.medium // Użycie kształtu z motywu
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = MaterialTheme.shapes.medium
                                 )
                         )
                         Column {
                             Text(
                                 team?.name ?: "Nieznana drużyna",
-                                style = MaterialTheme.typography.headlineSmall, // Większy styl dla nazwy drużyny
+                                style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
-                            Text(
-                                "Conference: ${team.conference ?: "Brak danych o konferencji"}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
+                            // Poprawione wyświetlanie konferencji - użycie bezpośredniego sprawdzenia null
+                            // Zakładamy, że team.conference jest już String?
+                            val conferenceName = team.conference
+                            if (conferenceName != null && conferenceName.isNotBlank()) {
+                                Text(
+                                    "Konferencja: $conferenceName", // Wyświetlamy nazwę konferencji
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
                         }
                     }
                     Spacer(Modifier.height(16.dp))
@@ -165,49 +169,47 @@ fun TeamDetailsScreen(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surface) // Użycie koloru powierzchni
+                                .background(MaterialTheme.colorScheme.surface)
                                 .padding(vertical = 8.dp)
-                                .clip(MaterialTheme.shapes.large) // Zaokrąglone rogi dla LazyColumn
+                                .clip(MaterialTheme.shapes.large)
                         ) {
                             item {
                                 Text(
-                                    "Statystyki Drużyny",
+                                    "Statystyki Drużyny (Średnie na Mecz)", // Zmieniono tytuł
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                                 )
                                 Spacer(Modifier.height(8.dp))
                             }
-                            stats?.stats?.let { listOfStats ->
+                            statsResponse?.stats?.let { listOfStats -> // Dostęp do listy 'stats'
                                 if (listOfStats.isNotEmpty()) {
                                     val s = listOfStats.first()
+                                    val gamesPlayed = s.games.toDouble()
+                                    val safeGamesPlayed = if (gamesPlayed > 0) gamesPlayed else 1.0
+
                                     item {
-                                        StatItem("Games Played", "${s.games}")
-                                        StatItem("Points", "${s.points}")
+                                        StatItem("Rozegrane mecze", "${s.games}")
+                                        StatItem("Punkty", String.format("%.1f", s.points.toDouble() / safeGamesPlayed))
                                         StatItem("FG%", s.fieldGoalPercentage ?: "N/A")
                                         StatItem("FT%", s.freeThrowPercentage ?: "N/A")
                                         StatItem("3P%", s.threePointPercentage ?: "N/A")
-                                        StatItem("Fast Break Pts", "${s.fastBreakPoints}")
-                                        StatItem("Points in Paint", "${s.pointsInPaint}")
-                                        StatItem("Biggest Lead", "${s.biggestLead}")
-                                        StatItem("Second Chance Pts", "${s.secondChancePoints}")
-                                        StatItem("Points Off Turnovers", "${s.pointsOffTurnovers}")
-                                        StatItem("Longest Run", "${s.longestRun}")
-                                        StatItem("FGM", "${s.fgm}")
-                                        StatItem("FGA", "${s.fga}")
-                                        StatItem("FTM", "${s.ftm}")
-                                        StatItem("FTA", "${s.fta}")
-                                        StatItem("TPM", "${s.tpm}")
-                                        StatItem("TPA", "${s.tpa}")
-                                        StatItem("Off. Rebounds", "${s.offensiveRebounds}")
-                                        StatItem("Def. Rebounds", "${s.defensiveRebounds}")
-                                        StatItem("Total Rebounds", "${s.totalRebounds}")
-                                        StatItem("Assists", "${s.assists}")
-                                        StatItem("Personal Fouls", "${s.personalFouls}")
-                                        StatItem("Steals", "${s.steals}")
-                                        StatItem("Turnovers", "${s.turnovers}")
-                                        StatItem("Blocks", "${s.blocks}")
-                                        StatItem("Plus/Minus", "${s.plusMinus}")
+                                        StatItem("FGM", String.format("%.1f", s.fgm.toDouble() / safeGamesPlayed))
+                                        StatItem("FGA", String.format("%.1f", s.fga.toDouble() / safeGamesPlayed))
+                                        StatItem("FTM", String.format("%.1f", s.ftm.toDouble() / safeGamesPlayed))
+                                        StatItem("FTA", String.format("%.1f", s.fta.toDouble() / safeGamesPlayed))
+                                        StatItem("3PM", String.format("%.1f", s.tpm.toDouble() / safeGamesPlayed))
+                                        StatItem("3PA", String.format("%.1f", s.tpa.toDouble() / safeGamesPlayed))
+                                        StatItem("Zbiórki Off.", String.format("%.1f", s.offensiveRebounds.toDouble() / safeGamesPlayed))
+                                        StatItem("Zbiórki Def.", String.format("%.1f", s.defensiveRebounds.toDouble() / safeGamesPlayed))
+                                        StatItem("Zbiórki Całk.", String.format("%.1f", s.totalRebounds.toDouble() / safeGamesPlayed))
+                                        StatItem("Asysty", String.format("%.1f", s.assists.toDouble() / safeGamesPlayed))
+                                        StatItem("Faule Osobiste", String.format("%.1f", s.personalFouls.toDouble() / safeGamesPlayed))
+                                        StatItem("Steals", String.format("%.1f", s.steals.toDouble() / safeGamesPlayed))
+                                        StatItem("Straty", String.format("%.1f", s.turnovers.toDouble() / safeGamesPlayed))
+                                        StatItem("Bloki", String.format("%.1f", s.blocks.toDouble() / safeGamesPlayed))
+                                        StatItem("Plus/Minus", String.format("%.1f", s.plusMinus.toDouble() / safeGamesPlayed))
+                                        // Usunięto statystyki sumaryczne, które wyświetlały 0.0
                                         Spacer(Modifier.height(16.dp))
                                     }
                                 } else {
@@ -235,9 +237,9 @@ fun TeamDetailsScreen(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surface) // Użycie koloru powierzchni
+                                .background(MaterialTheme.colorScheme.surface)
                                 .padding(16.dp)
-                                .clip(MaterialTheme.shapes.large) // Zaokrąglone rogi dla LazyColumn
+                                .clip(MaterialTheme.shapes.large)
                         ) {
                             item {
                                 Text(
@@ -259,7 +261,7 @@ fun TeamDetailsScreen(
                                     Text("Waga", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(0.1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Spacer(Modifier.height(4.dp))
-                                Divider(color = MaterialTheme.colorScheme.outlineVariant) // Kolor dividera
+                                Divider(color = MaterialTheme.colorScheme.outlineVariant)
                                 Spacer(Modifier.height(4.dp))
                             }
                             items(players) { player ->
@@ -267,12 +269,11 @@ fun TeamDetailsScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            // Przekazujemy tylko ID gracza
                                             player.id?.let {
-                                                navController.navigate(Screen.PlayerCardScreen.createRoute(it))
+                                                navController.navigate(com.example.nbaappproject.ui.theme.Navigation.Screen.PlayerCardScreen.createRoute(it))
                                             }
                                         }
-                                        .padding(vertical = 4.dp), // Dodaj padding dla wierszy graczy
+                                        .padding(vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
@@ -300,17 +301,17 @@ fun TeamDetailsScreen(
             }
         }
     }
-}
 
+}
 @Composable
 fun StatItem(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp), // Dostosuj padding
+            .padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) // Użycie koloru z motywu
-        Text(value, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface) // Użycie koloru z motywu
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
     }
 }

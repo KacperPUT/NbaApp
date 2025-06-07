@@ -14,8 +14,7 @@ import androidx.navigation.NavController
 import com.example.nbaappproject.data.response.GameDetailsItem
 import com.example.nbaappproject.data.viewmodel.GameViewModel
 import com.example.nbaappproject.data.viewmodel.Result
-import com.example.nbaappproject.ui.theme.GameBoxScoreScreen
-import com.example.nbaappproject.ui.theme.GameStats.GameSummaryScreen // Upewnij się, że ten import jest poprawny
+import com.example.nbaappproject.ui.theme.GameBoxScoreScreen // Upewnij się, że ten import jest poprawny
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,28 +41,28 @@ fun GameStatsScreen(
                         Icon(
                             Icons.Filled.ArrowBack,
                             contentDescription = "Back to Home",
-                            tint = MaterialTheme.colorScheme.onPrimary // Kolor ikony
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background) // Upewnij się, że tło jest ustawione
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface) // Kolor tła dla paska zakładek
+                    .background(MaterialTheme.colorScheme.surface)
                     .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -74,7 +73,7 @@ fun GameStatsScreen(
                     )
                 ) {
                     Text(
-                        text = "Podsumowanie", // Zmieniono na polski
+                        text = "Podsumowanie",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -97,13 +96,13 @@ fun GameStatsScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Kolor wskaźnika ładowania
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 is Result.Success -> {
                     val gameDetails = (gameDetailsResult as Result.Success<GameDetailsItem?>).data
                     when (selectedTab) {
-                        "Summary" -> GameSummaryScreen(gameDetails = gameDetails, navController = navController) // Przekazujemy navController
+                        "Summary" -> GameSummaryScreen(gameDetails = gameDetails, navController = navController)
                         "Box Score" -> gameId?.let { id ->
                             GameBoxScoreScreen(
                                 gameId = id,
@@ -121,7 +120,7 @@ fun GameStatsScreen(
                         Text(
                             "Wystąpił błąd podczas ładowania szczegółów meczu.",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error // Kolor błędu
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
                 }

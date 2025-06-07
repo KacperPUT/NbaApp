@@ -37,7 +37,7 @@ fun MainApp() {
             ) {
                 composable("home") { HomeScreen(navController = navController) }
                 composable("teams") { TeamsScreen(navController = navController) }
-                composable("standings") { StandingsScreen() }
+                composable("standings") { StandingsScreen(navController = navController) }
 
                 composable("gameStats/{gameId}") { backStackEntry ->
                     val gameId = backStackEntry.arguments?.getString("gameId")?.toIntOrNull()

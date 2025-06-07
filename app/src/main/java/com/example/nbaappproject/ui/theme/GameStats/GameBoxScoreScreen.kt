@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -17,185 +18,191 @@ import androidx.navigation.NavController
 import com.example.nbaappproject.data.response.PlayerStatsItem
 import com.example.nbaappproject.data.viewmodel.GameViewModel
 import com.example.nbaappproject.data.viewmodel.Result
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.Icons
-import androidx.compose.ui.draw.clip
 import com.example.nbaappproject.data.response.GameDetailsItem
+import androidx.compose.ui.draw.clip // Dodano import clip
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameBoxScoreScreen(
-    gameId: Int, // Otrzymujemy gameId jako argument
+    gameId: Int,
     navController: NavController,
     viewModel: GameViewModel = viewModel(),
-    gameDetails: GameDetailsItem? // gameDetails może być null, jeśli przechodzimy bezpośrednio
+    gameDetails: GameDetailsItem?
 ) {
     val playerStatsResult by viewModel.playerStats.collectAsState(initial = Result.Loading)
 
-    // Pobierz statystyki graczy po wejściu na ekran
-    androidx.compose.runtime.LaunchedEffect(gameId) {
+    LaunchedEffect(gameId) {
         viewModel.fetchPlayerStats(gameId)
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Box Score", style = MaterialTheme.typography.titleLarge) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onPrimary // Kolor ikony
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
-                )
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
-    ) { paddingValues ->
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp) // Dodano padding dla całej kolumny
+    ) {
+        // Zmieniono tytuł na bardziej ogólny
+        Text(
+            text = "Statystyki Graczy",
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // Upewnij się, że tło jest ustawione
-        ) {
-            Text(
-                text = "Statystyki Graczy dla meczu ID: $gameId",
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground, // Kolor tekstu
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
+                .fillMaxWidth()
+                .padding(bottom = 8.dp) // Mniejszy padding na dole
+        )
 
-            when (playerStatsResult) {
-                is Result.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Kolor wskaźnika ładowania
-                    }
+        when (playerStatsResult) {
+            is Result.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
-                is Result.Success -> {
-                    val playerStats = (playerStatsResult as Result.Success<List<PlayerStatsItem>>).data
-                    if (playerStats.isNotEmpty()) {
-                        PlayerStatsList(playerStats = playerStats)
-                    } else {
-                        Text(
-                            "Brak dostępnych statystyk graczy dla tego meczu.",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge, // Styl tekstu
-                            color = MaterialTheme.colorScheme.onBackground // Kolor tekstu
-                        )
+            }
+            is Result.Success -> {
+                val allPlayerStats = (playerStatsResult as Result.Success<List<PlayerStatsItem>>).data
+                if (allPlayerStats.isNotEmpty() && gameDetails != null) {
+                    val homeTeamPlayers = allPlayerStats.filter { it.team.id == gameDetails.teams.home.id }
+                    val visitorTeamPlayers = allPlayerStats.filter { it.team.id == gameDetails.teams.visitors.id }
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(MaterialTheme.shapes.medium) // Zaokrąglone rogi dla listy
+                    ) {
+                        // Sekcja dla drużyny gospodarzy
+                        item {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = gameDetails.teams.home.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                            )
+                            PlayerStatsHeader()
+                            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+                        }
+                        items(homeTeamPlayers) { stat ->
+                            PlayerStatsRow(stat)
+                            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+                        }
+
+                        // Sekcja dla drużyny gości
+                        item {
+                            Spacer(Modifier.height(16.dp)) // Odstęp między drużynami
+                            Text(
+                                text = gameDetails.teams.visitors.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                            )
+                            PlayerStatsHeader()
+                            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+                        }
+                        items(visitorTeamPlayers) { stat ->
+                            PlayerStatsRow(stat)
+                            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+                        }
                     }
-                }
-                is Result.Error -> {
+                } else {
                     Text(
-                        "Wystąpił błąd podczas ładowania statystyk graczy: ${(playerStatsResult as Result.Error).exception.message}",
+                        "Brak dostępnych statystyk graczy dla tego meczu lub brak danych o drużynach.",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
-                        style = MaterialTheme.typography.bodyLarge, // Styl tekstu
-                        color = MaterialTheme.colorScheme.error // Kolor błędu
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
+            }
+            is Result.Error -> {
+                Text(
+                    "Wystąpił błąd podczas ładowania statystyk graczy: ${(playerStatsResult as Result.Error).exception.message}",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         }
     }
 }
 
+// Komponent dla nagłówków tabeli statystyk graczy
 @Composable
-fun PlayerStatsList(playerStats: List<PlayerStatsItem>) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface) // Tło dla listy statystyk
-            .padding(horizontal = 8.dp, vertical = 4.dp) // Padding dla LazyColumn
-            .clip(MaterialTheme.shapes.medium) // Zaokrąglone rogi dla listy
+fun PlayerStatsHeader() {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(vertical = 8.dp, horizontal = 8.dp)
     ) {
-        item {
-            // Nagłówki tabeli
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant) // Tło dla nagłówków
-                    .padding(vertical = 8.dp, horizontal = 8.dp) // Padding dla nagłówków
-            ) {
-                Text(
-                    "Gracz",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Kolor tekstu
-                    modifier = Modifier.weight(2f)
-                )
-                Text(
-                    "Pkt",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Kolor tekstu
-                    modifier = Modifier.weight(0.5f),
-                    textAlign = TextAlign.End
-                )
-                Text(
-                    "Zb",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Kolor tekstu
-                    modifier = Modifier.weight(0.5f),
-                    textAlign = TextAlign.End
-                )
-                Text(
-                    "As",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Kolor tekstu
-                    modifier = Modifier.weight(0.5f),
-                    textAlign = TextAlign.End
-                )
-                // Dodaj inne nagłówki statystyk, które chcesz wyświetlić
-            }
-            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp) // Kolor dividera
-        }
-        items(playerStats) { stat ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp, horizontal = 8.dp), // Padding dla wierszy
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "${stat.player.firstname} ${stat.player.lastname}",
-                    style = MaterialTheme.typography.bodyMedium, // Styl tekstu
-                    color = MaterialTheme.colorScheme.onSurface, // Kolor tekstu
-                    modifier = Modifier.weight(2f)
-                )
-                Text(
-                    stat.points?.toString() ?: "-",
-                    style = MaterialTheme.typography.bodyMedium, // Styl tekstu
-                    color = MaterialTheme.colorScheme.onSurface, // Kolor tekstu
-                    modifier = Modifier.weight(0.5f),
-                    textAlign = TextAlign.End
-                )
-                Text(
-                    stat.totalRebounds?.toString() ?: "-",
-                    style = MaterialTheme.typography.bodyMedium, // Styl tekstu
-                    color = MaterialTheme.colorScheme.onSurface, // Kolor tekstu
-                    modifier = Modifier.weight(0.5f),
-                    textAlign = TextAlign.End
-                )
-                Text(
-                    stat.assists?.toString() ?: "-",
-                    style = MaterialTheme.typography.bodyMedium, // Styl tekstu
-                    color = MaterialTheme.colorScheme.onSurface, // Kolor tekstu
-                    modifier = Modifier.weight(0.5f),
-                    textAlign = TextAlign.End
-                )
-                // Dodaj inne statystyki
-            }
-            Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp) // Kolor dividera
-        }
+        Text(
+            "Gracz",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(2f)
+        )
+        Text(
+            "Pkt",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(0.5f),
+            textAlign = TextAlign.End
+        )
+        Text(
+            "Zb",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(0.5f),
+            textAlign = TextAlign.End
+        )
+        Text(
+            "As",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(0.5f),
+            textAlign = TextAlign.End
+        )
+    }
+}
+
+// Komponent dla wiersza statystyk gracza
+@Composable
+fun PlayerStatsRow(stat: PlayerStatsItem) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp, horizontal = 8.dp)
+            .background(MaterialTheme.colorScheme.surface), // Tło dla wierszy statystyk
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            "${stat.player.firstname} ${stat.player.lastname}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(2f)
+        )
+        Text(
+            stat.points?.toString() ?: "-",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(0.5f),
+            textAlign = TextAlign.End
+        )
+        Text(
+            stat.totalRebounds?.toString() ?: "-",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(0.5f),
+            textAlign = TextAlign.End
+        )
+        Text(
+            stat.assists?.toString() ?: "-",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(0.5f),
+            textAlign = TextAlign.End
+        )
     }
 }
