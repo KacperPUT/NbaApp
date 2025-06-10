@@ -20,9 +20,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.nbaappproject.viewmodel.TeamsViewModel
 import com.example.nbaappproject.data.model.Team
-import com.example.nbaappproject.ui.theme.Navigation.Screen // Dodaj ten import dla nawigacji
+import com.example.nbaappproject.ui.theme.Navigation.Screen
 
-@OptIn(ExperimentalMaterial3Api::class) // Dodaj opt-in dla ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamsScreen(
     navController: NavController,
@@ -32,20 +32,19 @@ fun TeamsScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    // Użyj Scaffold dla spójnego wyglądu ekranu
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Drużyny NBA", style = MaterialTheme.typography.titleLarge) }
             )
         },
-        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues) // Zastosuj padding z Scaffold
-                .background(MaterialTheme.colorScheme.background), // Upewnij się, że tło jest ustawione
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
             when {
@@ -65,7 +64,6 @@ fun TeamsScreen(
                     ) {
                         items(teams) { team ->
                             TeamItem(team) {
-                                // Nawigacja do TeamDetailsScreen
                                 navController.navigate(Screen.TeamDetailsScreen.createRoute(team.id))
                             }
                         }
@@ -80,21 +78,21 @@ fun TeamsScreen(
 fun TeamItem(team: Team, onClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .fillMaxWidth() // Użyj fillMaxWidth w Column, aby Card mógł się rozciągnąć
+            .fillMaxWidth()
             .clickable { onClick() }
-            .padding(8.dp), // Dodaj padding wokół każdego elementu
+            .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Card(
             modifier = Modifier
-                .size(96.dp), // Zwiększ rozmiar karty dla lepszej widoczności
-            shape = MaterialTheme.shapes.medium, // Użyj kształtu z motywu
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // Użyj koloru powierzchni z motywu
+                .size(96.dp),
+            shape = MaterialTheme.shapes.medium,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.primaryContainer), // Kolor tła dla logo
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
@@ -102,16 +100,16 @@ fun TeamItem(team: Team, onClick: () -> Unit) {
                     contentDescription = "${team.name} logo",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .size(64.dp) // Dostosuj rozmiar logo wewnątrz karty
-                        .clip(CircleShape) // Zachowaj okrągły kształt logo
+                        .size(64.dp)
+                        .clip(CircleShape)
                 )
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = team.nickname,
-            style = MaterialTheme.typography.bodyMedium, // Użyj stylu z motywu
-            color = MaterialTheme.colorScheme.onSurface // Użyj koloru tekstu z motywu
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

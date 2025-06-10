@@ -23,11 +23,11 @@ import androidx.navigation.NavController
 import com.example.nbaappproject.data.viewmodel.GameViewModel
 import com.example.nbaappproject.data.viewmodel.Result
 import com.example.nbaappproject.data.model.Game
-import com.example.nbaappproject.ui.theme.Navigation.Screen // Import dla Screen
+import com.example.nbaappproject.ui.theme.Navigation.Screen
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class) // Dodaj opt-in dla ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -64,27 +64,25 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("Mecze NBA", style = MaterialTheme.typography.titleLarge) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues) // Zastosuj padding z Scaffold
-                .background(MaterialTheme.colorScheme.background) // Upewnij się, że tło jest ustawione
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            // Usunięto HeaderText, ponieważ TopAppBar pełni tę funkcję
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer) // Kolor tła dla paska daty
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(horizontal = 4.dp, vertical = 8.dp)
             ) {
                 IconButton(onClick = { selectedDate = selectedDate.minusDays(1) }) {
@@ -110,7 +108,7 @@ fun HomeScreen(
 
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Kolor wskaźnika ładowania
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else {
                 when (gamesResult) {
@@ -132,8 +130,8 @@ fun HomeScreen(
                         } else {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp), // Dostosuj padding
-                                verticalArrangement = Arrangement.spacedBy(8.dp) // Odstępy między kartami
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 items(games) { game ->
                                     Card(
@@ -142,21 +140,21 @@ fun HomeScreen(
                                             .clickable {
                                                 navController.navigate(Screen.GameStatsScreen.createRoute(game.id))
                                             },
-                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Kolor tła karty
-                                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), // Elewacja karty
-                                        shape = MaterialTheme.shapes.medium // Kształt karty
+                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                                        shape = MaterialTheme.shapes.medium
                                     ) {
                                         Column(modifier = Modifier.padding(16.dp)) {
                                             Text(
                                                 text = "${game.homeTeam.name} vs ${game.awayTeam.name}",
-                                                style = MaterialTheme.typography.titleMedium, // Styl nazwy drużyn
-                                                color = MaterialTheme.colorScheme.onSurface // Kolor tekstu
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
                                             Text(
                                                 text = "${game.homeScore} : ${game.awayScore}",
-                                                style = MaterialTheme.typography.bodyLarge, // Styl wyniku
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
                                     }
@@ -169,7 +167,7 @@ fun HomeScreen(
                             Text(
                                 "Wystąpił błąd podczas ładowania gier.",
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.error // Kolor błędu
+                                color = MaterialTheme.colorScheme.error
                             )
                         }
                     }

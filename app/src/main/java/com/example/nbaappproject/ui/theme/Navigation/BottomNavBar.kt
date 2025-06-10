@@ -13,12 +13,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-// Usunięto import com.example.nbaappproject.data.model.PlayerUi
-// Usunięto import com.google.gson.Gson
 
 sealed class Screen(val route: String) {
     object HomeScreen : Screen("home")
-    // object PlayersScreen : Screen("players") // Zakomentowane w Twoim MainApp
     object TeamsScreen : Screen("teams")
     object StandingsScreen : Screen("standings")
     object GameStatsScreen : Screen("gameStats/{gameId}") {
@@ -36,7 +33,6 @@ sealed class Screen(val route: String) {
             return "gameBoxScore/$gameId"
         }
     }
-    // Zmieniamy PlayerCardScreen, aby przyjmował tylko playerId
     object PlayerCardScreen : Screen("playerCard/{playerId}") {
         fun createRoute(playerId: Int): String {
             return "playerCard/$playerId"
@@ -59,15 +55,15 @@ val bottomNavItems = listOf(
 fun BottomNavBar(navController: NavController, modifier: Modifier = Modifier) {
     NavigationBar(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surface, // Kolor tła paska nawigacji
-        contentColor = MaterialTheme.colorScheme.onSurfaceVariant // Domyślny kolor ikon/tekstu
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
     ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
 
         bottomNavItems.forEach { item ->
             val selected = currentRoute?.startsWith(item.route) == true && item.route == Screen.HomeScreen.route ||
-                    currentRoute?.startsWith(item.route) == true && item.route != Screen.HomeScreen.route // Poprawiona logika wyboru
+                    currentRoute?.startsWith(item.route) == true && item.route != Screen.HomeScreen.route
 
             NavigationBarItem(
                 selected = selected,
@@ -94,14 +90,14 @@ fun BottomNavBar(navController: NavController, modifier: Modifier = Modifier) {
                     Icon(
                         imageVector = item.icon,
                         contentDescription = item.route,
-                        tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant // Kolor ikony w zależności od wyboru
+                        tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 label = {
                     Text(
                         item.route,
-                        style = MaterialTheme.typography.labelSmall, // Styl tekstu etykiety
-                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu etykiety
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
@@ -109,7 +105,7 @@ fun BottomNavBar(navController: NavController, modifier: Modifier = Modifier) {
                     selectedTextColor = MaterialTheme.colorScheme.primary,
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    indicatorColor = MaterialTheme.colorScheme.primaryContainer // Kolor wskaźnika wybranej zakładki
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
                 )
             )
         }

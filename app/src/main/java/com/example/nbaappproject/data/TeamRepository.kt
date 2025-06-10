@@ -23,7 +23,6 @@ class TeamRepository(private val api: NbaApiService = RetrofitInstance.api) {
     suspend fun getAllPlayers(season: String): Response<PlayersResponse> = api.getAllPlayers(season)
     suspend fun getStandings(season: String) = api.getStandings(season)
 
-    // Ta funkcja jest kluczowa dla rozwiązania błędu "Unresolved reference: getPlayerSeasonStats"
     suspend fun getPlayerSeasonStats(playerId: Int, season: String): Response<PlayerStatsResponse> = api.getPlayerSeasonStats(season, playerId)
 
     suspend fun getGameTeamStatistics(gameId: Int): Response<GameStatisticsResponse> = api.getGameTeamStatistics(gameId)

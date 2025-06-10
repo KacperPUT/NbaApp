@@ -3,7 +3,7 @@ package com.example.nbaappproject.data.response
 import com.google.gson.annotations.SerializedName
 
 data class TeamStatsResponse(
-    @SerializedName("response") val stats: List<TeamStatsItem> // Zmieniamy na List<TeamStatsItem>
+    @SerializedName("response") val stats: List<TeamStatsItem>
 )
 
 data class TeamStatsItem(

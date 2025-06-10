@@ -17,12 +17,12 @@ import com.example.nbaappproject.ui.theme.Standings.StandingsScreen
 import com.example.nbaappproject.ui.theme.Navigation.BottomNavBar
 import com.example.nbaappproject.ui.theme.Teams.TeamDetailsScreen
 import com.example.nbaappproject.ui.theme.GameBoxScoreScreen
-import com.example.nbaappproject.ui.theme.Players.PlayerCardScreen // Import PlayerCardScreen
-import com.example.nbaappproject.ui.theme.NbaAppProjectTheme // WAŻNE: Importuj swój motyw
+import com.example.nbaappproject.ui.theme.Players.PlayerCardScreen
+import com.example.nbaappproject.ui.theme.NbaAppProjectTheme
 
 @Composable
 fun MainApp() {
-    NbaAppProjectTheme { // Otocz całą aplikację swoim motywem
+    NbaAppProjectTheme {
         val navController = rememberNavController()
 
         Scaffold(

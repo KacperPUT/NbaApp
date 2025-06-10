@@ -9,21 +9,21 @@ fun GameItem.toGame(): Game {
         homeTeam = Team(
             id = this.teams.home.id,
             name = this.teams.home.name,
-            nickname = "", // Not directly available here
+            nickname = "",
             logoUrl = this.teams.home.logo ?: "",
-            city = "", // Not directly available here
-            conference = "", // Not directly available here
-            division = "", // Not directly available here
+            city = "",
+            conference = "",
+            division = "",
             code = this.teams.home.code ?: ""
         ),
         awayTeam = Team(
             id = this.teams.visitors.id,
             name = this.teams.visitors.name,
-            nickname = "", // Not directly available here
+            nickname = "",
             logoUrl = this.teams.visitors.logo ?: "",
-            city = "", // Not directly available here
-            conference = "", // Not directly available here
-            division = "", // Not directly available here
+            city = "",
+            conference = "",
+            division = "",
             code = this.teams.visitors.code ?: ""
         ),
         homeScore = this.scores.home.points,

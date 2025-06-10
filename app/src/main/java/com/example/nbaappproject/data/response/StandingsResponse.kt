@@ -24,8 +24,8 @@ data class StandingResponseItem(
 data class ApiConference(
     @SerializedName("name") val name: String,
     @SerializedName("rank") val rank: Int,
-    @SerializedName("win") val win: Int, // Dodano win dla konferencji (z odpowiedzi API)
-    @SerializedName("loss") val loss: Int // Dodano loss dla konferencji (z odpowiedzi API)
+    @SerializedName("win") val win: Int,
+    @SerializedName("loss") val loss: Int
 )
 
 data class ApiDivision(
@@ -44,10 +44,10 @@ data class ApiRecordDetails(
     @SerializedName("lastTen") val lastTen: Int
 )
 
-data class Team( // Zakładam, że Twój model Team ma te pola
+data class Team(
     @SerializedName("id") val id: Int,
     @SerializedName("name") val name: String,
     @SerializedName("nickname") val nickname: String,
     @SerializedName("code") val code: String,
-    @SerializedName("logo") val logoUrl: String // Zmieniono nazwę na bardziej opisową
+    @SerializedName("logo") val logoUrl: String
 )

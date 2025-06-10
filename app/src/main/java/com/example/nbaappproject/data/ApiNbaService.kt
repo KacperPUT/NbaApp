@@ -52,7 +52,7 @@ interface NbaApiService {
     @GET("standings")
     suspend fun getStandings(
         @Query("season") season: String,
-        @Query("league") league: String = "standard" // Domyślna wartość
+        @Query("league") league: String = "standard"
     ): Response<StandingsResponse>
 
     @Headers(
@@ -78,7 +78,7 @@ interface NbaApiService {
         "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
     )
     @GET("players/statistics")
-    suspend fun getPlayerStats( // Ta funkcja jest używana do pobierania statystyk gracza z konkretnego meczu
+    suspend fun getPlayerStats(
         @Query("game") gameId: Int
     ): PlayerStatsResponse
 
@@ -86,11 +86,11 @@ interface NbaApiService {
         "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",
         "X-RapidAPI-Host: api-nba-v1.p.rapidapi.com"
     )
-    @GET("players/statistics") // Ten endpoint jest używany do statystyk sezonowych gracza
-    suspend fun getPlayerSeasonStats( // Ta funkcja jest używana do pobierania statystyk gracza z danego sezonu
+    @GET("players/statistics")
+    suspend fun getPlayerSeasonStats(
         @Query("season") season: String,
         @Query("id") playerId: Int
-    ): Response<PlayerStatsResponse> // Zwraca PlayerStatsResponse, które zawiera listę PlayerStatsItem
+    ): Response<PlayerStatsResponse>
 
     @Headers(
         "X-RapidAPI-Key: c555ec5e0bmshf7d9602845d710dp1e61d9jsn74a3dd4c6d60",

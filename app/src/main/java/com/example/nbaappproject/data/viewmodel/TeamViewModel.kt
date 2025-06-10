@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.nbaappproject.data.TeamRepository
 import com.example.nbaappproject.data.model.PlayerUi
 import com.example.nbaappproject.data.model.toUi
-import com.example.nbaappproject.data.response.PlayerStatsResponse // Import dla PlayerStatsResponse
-import com.example.nbaappproject.data.response.PlayerStatsItem // Import dla PlayerStatsItem
+import com.example.nbaappproject.data.response.PlayerStatsResponse
+import com.example.nbaappproject.data.response.PlayerStatsItem
 import com.example.nbaappproject.data.response.TeamStatsResponse
 import com.example.nbaappproject.data.response.GameStatisticsResponse
 import com.example.nbaappproject.data.model.PlayerSeasonAverages
@@ -129,11 +129,11 @@ class TeamViewModel : ViewModel() {
                             totalPoints += stat.points ?: 0
                             totalAssists += stat.assists ?: 0
                             totalTotalRebounds += stat.totalRebounds ?: 0
-                            totalOffensiveRebounds += stat.offensiveRebounds ?: 0 // Używamy nazwy pola Kotlin
-                            totalDefensiveRebounds += stat.defensiveRebounds ?: 0 // Używamy nazwy pola Kotlin
+                            totalOffensiveRebounds += stat.offensiveRebounds ?: 0
+                            totalDefensiveRebounds += stat.defensiveRebounds ?: 0
                             totalSteals += stat.steals ?: 0
                             totalBlocks += stat.blocks ?: 0
-                            totalPersonalFouls += stat.personalFouls ?: 0 // Używamy nazwy pola Kotlin
+                            totalPersonalFouls += stat.personalFouls ?: 0
                             totalTurnovers += stat.turnovers ?: 0
                             stat.plusMinus?.toIntOrNull()?.let { totalPlusMinus += it }
 

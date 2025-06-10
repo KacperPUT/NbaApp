@@ -19,7 +19,7 @@ import com.example.nbaappproject.data.response.PlayerStatsItem
 import com.example.nbaappproject.data.viewmodel.GameViewModel
 import com.example.nbaappproject.data.viewmodel.Result
 import com.example.nbaappproject.data.response.GameDetailsItem
-import androidx.compose.ui.draw.clip // Dodano import clip
+import androidx.compose.ui.draw.clip
 
 @Composable
 fun GameBoxScoreScreen(
@@ -38,9 +38,8 @@ fun GameBoxScoreScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp) // Dodano padding dla całej kolumny
+            .padding(16.dp)
     ) {
-        // Zmieniono tytuł na bardziej ogólny
         Text(
             text = "Statystyki Graczy",
             style = MaterialTheme.typography.headlineSmall,
@@ -48,7 +47,7 @@ fun GameBoxScoreScreen(
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp) // Mniejszy padding na dole
+                .padding(bottom = 8.dp)
         )
 
         when (playerStatsResult) {
@@ -66,9 +65,8 @@ fun GameBoxScoreScreen(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(MaterialTheme.shapes.medium) // Zaokrąglone rogi dla listy
+                            .clip(MaterialTheme.shapes.medium)
                     ) {
-                        // Sekcja dla drużyny gospodarzy
                         item {
                             Spacer(Modifier.height(8.dp))
                             Text(
@@ -85,9 +83,8 @@ fun GameBoxScoreScreen(
                             Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
                         }
 
-                        // Sekcja dla drużyny gości
                         item {
-                            Spacer(Modifier.height(16.dp)) // Odstęp między drużynami
+                            Spacer(Modifier.height(16.dp))
                             Text(
                                 text = gameDetails.teams.visitors.name,
                                 style = MaterialTheme.typography.titleMedium,
@@ -128,7 +125,6 @@ fun GameBoxScoreScreen(
     }
 }
 
-// Komponent dla nagłówków tabeli statystyk graczy
 @Composable
 fun PlayerStatsHeader() {
     Row(
@@ -167,14 +163,13 @@ fun PlayerStatsHeader() {
     }
 }
 
-// Komponent dla wiersza statystyk gracza
 @Composable
 fun PlayerStatsRow(stat: PlayerStatsItem) {
     Row(
         Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp, horizontal = 8.dp)
-            .background(MaterialTheme.colorScheme.surface), // Tło dla wierszy statystyk
+            .background(MaterialTheme.colorScheme.surface),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

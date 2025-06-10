@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.nbaappproject.data.viewmodel.TeamViewModel
-import com.example.nbaappproject.ui.theme.Teams.StatItem // Upewnij się, że ten import jest poprawny
+import com.example.nbaappproject.ui.theme.Teams.StatItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +31,7 @@ fun PlayerCardScreen(
     val isLoading by teamViewModel.isLoading.collectAsState()
 
     LaunchedEffect(key1 = playerId) {
-        teamViewModel.loadPlayerSeasonStats(playerId, "2020") // Sezon "2020" dla statystyk zawodnika
+        teamViewModel.loadPlayerSeasonStats(playerId, "2020")
     }
 
     Scaffold(
@@ -43,60 +43,59 @@ fun PlayerCardScreen(
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onPrimary // Kolor ikony
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary, // Kolor TopAppBar
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Kolor tytułu
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background // Ustaw kolor tła dla całego Scaffold
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background), // Upewnij się, że tło jest ustawione
+                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.TopCenter
         ) {
             if (isLoading) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Kolor wskaźnika ładowania
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             } else {
                 playerSeasonAverages?.let { averages ->
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surface) // Kolor tła LazyColumn
+                            .background(MaterialTheme.colorScheme.surface)
                             .padding(16.dp)
-                            .clip(MaterialTheme.shapes.large) // Zaokrąglone rogi dla LazyColumn
+                            .clip(MaterialTheme.shapes.large)
                     ) {
                         item {
                             Text(
                                 "${averages.firstName} ${averages.lastName}",
-                                style = MaterialTheme.typography.headlineSmall, // Styl nazwiska
-                                color = MaterialTheme.colorScheme.onSurface // Kolor tekstu
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 "Drużyna: ${averages.teamName}",
-                                style = MaterialTheme.typography.bodyMedium, // Styl drużyny
-                                color = MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 "Rozegrane mecze: ${averages.gamesPlayed}",
-                                style = MaterialTheme.typography.bodyMedium, // Styl rozegranych meczów
-                                color = MaterialTheme.colorScheme.onSurfaceVariant // Kolor tekstu
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            // Statystyki Sezonowe
                             Text(
                                 "Statystyki Sezonowe (Średnie na Mecz)",
-                                style = MaterialTheme.typography.titleMedium, // Styl nagłówka statystyk
-                                color = MaterialTheme.colorScheme.onSurface // Kolor tekstu
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             StatItem("Minuty", averages.avgMinutes)
@@ -114,13 +113,6 @@ fun PlayerCardScreen(
                             StatItem("FT%", "${String.format("%.1f", averages.avgFreeThrowPercentage)}%")
                             StatItem("3P%", "${String.format("%.1f", averages.avgThreePointPercentage)}%")
                         }
-                    } ?: run {
-                        Text(
-                            "Brak danych o statystykach zawodnika dla tego sezonu.",
-                            modifier = Modifier.align(Alignment.Center),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
                 }
             }

@@ -1,7 +1,7 @@
 package com.example.nbaappproject.data.model
 
 import com.google.gson.annotations.SerializedName
-import com.example.nbaappproject.data.model.Team // Używamy istniejącej klasy Team
+import com.example.nbaappproject.data.model.Team
 
 data class Game(
     @SerializedName("id") val id: Int,

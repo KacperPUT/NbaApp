@@ -16,16 +16,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController // Dodaj import NavController
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.nbaappproject.data.response.StandingResponseItem
 import com.example.nbaappproject.viewmodel.StandingsViewModel
-import com.example.nbaappproject.ui.theme.Navigation.Screen // Dodaj import Screen dla nawigacji
+import com.example.nbaappproject.ui.theme.Navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StandingsScreen(
-    navController: NavController, // Dodaj NavController jako parametr
+    navController: NavController,
     viewModel: StandingsViewModel = viewModel()
 ) {
     var selectedConference by remember { mutableStateOf("East") }
@@ -122,7 +122,7 @@ fun StandingsScreen(
                                         .padding(vertical = 8.dp)
                                 )
                             }
-                            StandingsItem(standing = standing, navController = navController) // Przekaż navController
+                            StandingsItem(standing = standing, navController = navController)
                         }
                     }
                 }
@@ -132,7 +132,7 @@ fun StandingsScreen(
 }
 
 @Composable
-fun StandingsItem(standing: StandingResponseItem, navController: NavController) { // Dodaj NavController jako parametr
+fun StandingsItem(standing: StandingResponseItem, navController: NavController) {
     println("Processing StandingsItem for team: ${standing.team}")
     val team = standing.team
     if (team == null) {
@@ -153,7 +153,7 @@ fun StandingsItem(standing: StandingResponseItem, navController: NavController) 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { // Dodano modyfikator clickable
+            .clickable {
                 team.id?.let { teamId ->
                     navController.navigate(Screen.TeamDetailsScreen.createRoute(teamId))
                 }
@@ -217,6 +217,5 @@ fun calculateWinPercentage(wins: Int, losses: Int): String {
 @Preview
 @Composable
 fun StandingsScreenPreview() {
-    // Preview nie może mieć NavController, więc używamy placeholder'a
     Text("Preview placeholder – StandingsScreen()")
 }

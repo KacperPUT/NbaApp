@@ -8,8 +8,8 @@ data class GameDetailsResponse(
 
 data class GameDetailsItem(
     @SerializedName("id") val id: Int,
-    @SerializedName("date") val date: GameDate, // Używamy istniejącej GameDate
-    @SerializedName("teams") val teams: GameTeams, // Używamy istniejącej GameTeams
+    @SerializedName("date") val date: GameDate,
+    @SerializedName("teams") val teams: GameTeams,
     @SerializedName("scores") val scores: GameDetailsGameScores,
     @SerializedName("status") val status: GameStatus,
     @SerializedName("periods") val periods: GamePeriods,

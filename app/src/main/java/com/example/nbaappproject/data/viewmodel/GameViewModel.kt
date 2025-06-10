@@ -15,7 +15,7 @@ import android.util.Log
 import com.example.nbaappproject.data.response.PlayerStatsItem
 import com.example.nbaappproject.data.viewmodel.Result
 
-sealed class Result<out T> { // Upewnij się, że masz tę klasę w tym pakiecie
+sealed class Result<out T> {
     object Loading : Result<Nothing>()
     data class Success<out T>(val data: T) : Result<T>()
     data class Error(val exception: Throwable) : Result<Nothing>()
@@ -29,7 +29,7 @@ class GameViewModel(private val repository: TeamRepository = TeamRepository()) :
     private val _gameDetails = MutableStateFlow<Result<GameDetailsItem?>>(Result.Loading)
     val gameDetails: StateFlow<Result<GameDetailsItem?>> = _gameDetails.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false) // Możesz usunąć, jeśli używasz Result
+    private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _playerStats = MutableStateFlow<Result<List<PlayerStatsItem>>>(Result.Loading)
@@ -51,7 +51,7 @@ class GameViewModel(private val repository: TeamRepository = TeamRepository()) :
                 Log.e("GameViewModel", "Network error", e)
                 _games.update { Result.Error(e) }
             } finally {
-                // _isLoading.value = false // Niepotrzebne przy Result
+                // _isLoading.value = false
             }
         }
     }

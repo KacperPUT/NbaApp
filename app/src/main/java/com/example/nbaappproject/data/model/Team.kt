@@ -11,5 +11,5 @@ data class Team(
     @SerializedName("conference") val conference: String?,
     @SerializedName("division") val division: String?,
     @SerializedName("code") val code: String? = null,
-    @SerializedName("nbaFranchise") val nbaFranchise: Boolean? = null // Dodajemy to pole
+    @SerializedName("nbaFranchise") val nbaFranchise: Boolean? = null
 )

@@ -9,7 +9,7 @@ data class Player(
     @SerializedName("birth") val birth: Birth,
     @SerializedName("nba") val nba: Nba,
     @SerializedName("height") val height: Height,
-    @SerializedName("weight") val weight: Weight, // mała litera 'w'
+    @SerializedName("weight") val weight: Weight,
     @SerializedName("college") val college: String?,
     @SerializedName("affiliation") val affiliation: String?,
     @SerializedName("leagues") val leagues: Leagues?

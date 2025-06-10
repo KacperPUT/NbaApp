@@ -24,7 +24,7 @@ fun Player.toUi(teamName: String): PlayerUi {
         jerseyNumber = leagues?.standard?.jersey,
         position = leagues?.standard?.pos,
         height = height.meters ?: "N/A",
-        weight = weight.kilograms ?: "N/A", // mała litera 'w'
+        weight = weight.kilograms ?: "N/A",
         birthDate = birth.date,
         college = college,
         country = birth.country,

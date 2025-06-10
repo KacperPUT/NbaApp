@@ -14,7 +14,7 @@ import androidx.navigation.NavController
 import com.example.nbaappproject.data.response.GameDetailsItem
 import com.example.nbaappproject.data.viewmodel.GameViewModel
 import com.example.nbaappproject.data.viewmodel.Result
-import com.example.nbaappproject.ui.theme.GameBoxScoreScreen // Upewnij się, że ten import jest poprawny
+import com.example.nbaappproject.ui.theme.GameBoxScoreScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

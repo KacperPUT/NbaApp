@@ -2,7 +2,6 @@ package com.example.nbaappproject.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Jasny motyw
 val md_theme_light_primary = Color(0xFF005AC1)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFD8E2FF)
@@ -34,7 +33,6 @@ val md_theme_light_surfaceTintColor = Color(0xFF005AC1)
 val md_theme_light_outlineVariant = Color(0xFFC4C6D0)
 val md_theme_light_scrim = Color(0xFF000000)
 
-// Ciemny motyw
 val md_theme_dark_primary = Color(0xFFAEC6FF)
 val md_theme_dark_onPrimary = Color(0xFF002E69)
 val md_theme_dark_primaryContainer = Color(0xFF004494)

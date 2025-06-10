@@ -22,7 +22,7 @@ import com.example.nbaappproject.data.RetrofitInstance
 import com.example.nbaappproject.data.viewmodel.TeamViewModel
 import com.example.nbaappproject.data.model.Team
 import com.example.nbaappproject.viewmodel.TeamsViewModel
-import com.example.nbaappproject.data.model.PlayerUi // Dodaj ten import
+import com.example.nbaappproject.data.model.PlayerUi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,7 +101,6 @@ fun TeamDetailsScreen(
                         .background(MaterialTheme.colorScheme.background)
                         .padding(16.dp)
                 ) {
-                    // Informacje o drużynie (logo, nazwa drużyny)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -123,12 +122,10 @@ fun TeamDetailsScreen(
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
-                            // Poprawione wyświetlanie konferencji - użycie bezpośredniego sprawdzenia null
-                            // Zakładamy, że team.conference jest już String?
                             val conferenceName = team.conference
                             if (conferenceName != null && conferenceName.isNotBlank()) {
                                 Text(
-                                    "Konferencja: $conferenceName", // Wyświetlamy nazwę konferencji
+                                    "Konferencja: $conferenceName",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
@@ -137,7 +134,6 @@ fun TeamDetailsScreen(
                     }
                     Spacer(Modifier.height(16.dp))
 
-                    // Przyciski do przełączania widoku
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         Button(
                             onClick = { showStats = true },
@@ -164,7 +160,6 @@ fun TeamDetailsScreen(
                     }
                     Spacer(Modifier.height(16.dp))
 
-                    // Wyświetlanie statystyk drużyny
                     if (showStats) {
                         LazyColumn(
                             modifier = Modifier
@@ -175,14 +170,14 @@ fun TeamDetailsScreen(
                         ) {
                             item {
                                 Text(
-                                    "Statystyki Drużyny (Średnie na Mecz)", // Zmieniono tytuł
+                                    "Statystyki Drużyny (Średnie na Mecz)",
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                                 )
                                 Spacer(Modifier.height(8.dp))
                             }
-                            statsResponse?.stats?.let { listOfStats -> // Dostęp do listy 'stats'
+                            statsResponse?.stats?.let { listOfStats ->
                                 if (listOfStats.isNotEmpty()) {
                                     val s = listOfStats.first()
                                     val gamesPlayed = s.games.toDouble()
@@ -209,7 +204,6 @@ fun TeamDetailsScreen(
                                         StatItem("Straty", String.format("%.1f", s.turnovers.toDouble() / safeGamesPlayed))
                                         StatItem("Bloki", String.format("%.1f", s.blocks.toDouble() / safeGamesPlayed))
                                         StatItem("Plus/Minus", String.format("%.1f", s.plusMinus.toDouble() / safeGamesPlayed))
-                                        // Usunięto statystyki sumaryczne, które wyświetlały 0.0
                                         Spacer(Modifier.height(16.dp))
                                     }
                                 } else {
@@ -233,7 +227,7 @@ fun TeamDetailsScreen(
                                 }
                             }
                         }
-                    } else { // Wyświetlanie składu
+                    } else {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -248,7 +242,6 @@ fun TeamDetailsScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(Modifier.height(8.dp))
-                                // Nagłówki tabeli
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween

@@ -19,17 +19,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nbaappproject.data.response.GameDetailsItem
 import com.example.nbaappproject.data.viewmodel.TeamViewModel
 import com.example.nbaappproject.ui.theme.Teams.StatItem
-import androidx.navigation.NavController // Dodaj import NavController
+import androidx.navigation.NavController
 
 @Composable
 fun GameSummaryScreen(
     modifier: Modifier = Modifier,
     gameDetails: GameDetailsItem?,
     teamViewModel: TeamViewModel = viewModel(),
-    navController: NavController // NavController nadal potrzebny do nawigacji
+    navController: NavController
 ) {
     val gameTeamStatistics by teamViewModel.gameTeamStatistics.collectAsState()
-    val isLoading by teamViewModel.isLoading.collectAsState() // isLoading dla statystyk drużynowych z meczu
+    val isLoading by teamViewModel.isLoading.collectAsState()
 
     LaunchedEffect(key1 = gameDetails?.id) {
         gameDetails?.id?.let {
@@ -37,24 +37,22 @@ fun GameSummaryScreen(
         }
     }
 
-    // WAŻNE: BRAK SCAFFOLD I TOPAPPBAR W TYM PLIKU. Obsługuje je GameStatsScreen.
     Column(
         modifier = modifier
-            .fillMaxSize() // Wypełnij dostępną przestrzeń
-            .background(MaterialTheme.colorScheme.background) // Upewnij się, że tło jest ustawione
-            .padding(16.dp), // Dodaj padding, który może być kontrolowany przez rodzica (GameStatsScreen)
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (gameDetails != null) {
-            // Przeniesiono definicje homeScores i visitorScores tutaj, aby były dostępne w całym Composable
             val homeScores = gameDetails.scores.home.linescore ?: emptyList()
             val visitorScores = gameDetails.scores.visitors.linescore ?: emptyList()
 
             Text(
                 text = "Wynik Końcowy: ${gameDetails.scores.home.points} - ${gameDetails.scores.visitors.points}",
-                style = MaterialTheme.typography.headlineSmall, // Większy styl dla wyniku
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(top = 0.dp) // Zmieniono padding, bo już jest padding na Columnie
+                modifier = Modifier.padding(top = 0.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -81,26 +79,22 @@ fun GameSummaryScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Poprawione wyrównanie kwart
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Nagłówki kwart
                 Text("Q1", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                 Text("Q2", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                 Text("Q3", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                 Text("Q4", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                 Text("T", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
             }
-            // Wyniki drużyn
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Wyniki drużyny gospodarzy
                 for (i in 0 until 4) {
                     Text(
                         text = homeScores.getOrNull(i) ?: "-",
@@ -111,7 +105,7 @@ fun GameSummaryScreen(
                     )
                 }
                 Text(
-                    text = gameDetails.scores.home.points?.toString() ?: "-", // Całkowity wynik
+                    text = gameDetails.scores.home.points?.toString() ?: "-",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.weight(1f),
@@ -123,7 +117,6 @@ fun GameSummaryScreen(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Wyniki drużyny gości
                 for (i in 0 until 4) {
                     Text(
                         text = visitorScores.getOrNull(i) ?: "-",
@@ -134,7 +127,7 @@ fun GameSummaryScreen(
                     )
                 }
                 Text(
-                    text = gameDetails.scores.visitors.points?.toString() ?: "-", // Całkowity wynik
+                    text = gameDetails.scores.visitors.points?.toString() ?: "-",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.weight(1f),
